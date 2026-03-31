@@ -1,0 +1,75 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --sanna-mint-0: #ffffff;
+  --sanna-mint-1: #f2fbf7;
+  --sanna-mint-2: #e9f9f1;
+
+  --sanna-ink: #0f172a;
+  --sanna-muted: #64748b;
+  --sanna-border: rgba(226, 232, 240, 0.9);
+
+  --sanna-accent: #10b981; /* login: rgba(16,185,129,...) */
+  --sanna-accent-strong: #0aa64f; /* login primary gradient end */
+  --sanna-accent-ink: #0f766e; /* login link */
+  --sanna-accent-ring: rgba(16, 185, 129, 0.16);
+}
+
+html {
+  height: 100%;
+  font-size: 14px;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(900px 560px at 18% 14%, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0) 60%),
+    radial-gradient(900px 560px at 84% 86%, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0) 58%),
+    linear-gradient(180deg, #f7fcfa 0%, #f2fbf7 55%, #eefaf4 100%);
+  color: var(--sanna-ink);
+  font-feature-settings: "liga" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  isolation: isolate;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+    "Liberation Sans", sans-serif;
+  line-height: 1.45;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -140px;
+  opacity: 0.22;
+  background:
+    radial-gradient(circle at 12% 28%, rgba(16, 185, 129, 0.55) 0 64px, transparent 66px),
+    radial-gradient(circle at 82% 22%, rgba(16, 185, 129, 0.42) 0 92px, transparent 94px),
+    radial-gradient(circle at 88% 78%, rgba(16, 185, 129, 0.34) 0 128px, transparent 130px),
+    radial-gradient(circle at 18% 84%, rgba(16, 185, 129, 0.3) 0 110px, transparent 112px);
+  pointer-events: none;
+  filter: blur(0.4px);
+  z-index: 0;
+}
+
+#root {
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}

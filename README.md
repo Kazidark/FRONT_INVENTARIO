@@ -1,16 +1,100 @@
-# React + Vite
+# Inventario Front
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Guia rapida para levantar el frontend en desarrollo.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Node.js 18+ (recomendado)
+- npm 9+ (incluido con Node)
 
-## React Compiler
+## Instalacion
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+En la carpeta del proyecto:
 
-## Expanding the ESLint configuration
+```bash
+npm install
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Estructura de carpetas
+
+Estructura organizada por funcionalidades y capas compartidas:
+
+```
+src/
+  app/
+    App.jsx                 # router principal y layout base
+  features/
+    auth/
+      pages/
+    modems/
+      components/
+    pcs-laptops/
+      components/
+      pages/
+    monitores/
+      components/
+      pages/
+    tablets/
+      components/
+      pages/
+    celulares/
+      components/
+      pages/
+    chips/
+      components/
+      pages/
+    asignaciones/
+      components/
+      pages/
+    usuarios/
+      components/
+      pages/
+    colaboradores/
+      components/
+      pages/
+  services/
+    api/                    # clientes y funciones de API
+  shared/
+    components/             # UI reutilizable + layout
+    context/                # contextos globales
+  styles/
+    global.css
+  main.jsx                  # entry de React
+```
+
+### Reglas rapidas
+
+- Cada feature vive en `src/features/<feature>/` con `pages/` y `components/`.
+- Las pantallas siempre en `pages/` y los componentes del dominio en `components/`.
+- Todo lo reutilizable va en `src/shared`.
+- Las peticiones HTTP se concentran en `src/services/api`.
+- Estilos globales en `src/styles/global.css`.
+
+## Levantar en desarrollo
+
+```bash
+npm run dev
+```
+
+Luego abrir la URL que imprime la consola (normalmente `http://localhost:5173`).
+
+## Build de produccion
+
+```bash
+npm run build
+```
+
+## Preview de produccion
+
+```bash
+npm run preview
+```
+
+## Comandos utiles
+
+- `npm run lint` valida el codigo con ESLint.
+
+## Notas
+
+Si el frontend consume una API, configurar la URL en las variables de entorno
+que use el proyecto (por ejemplo `VITE_API_URL`) segun el archivo `.env`.

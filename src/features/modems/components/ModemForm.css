@@ -1,0 +1,400 @@
+.modem-form-shell {
+  max-width: 1240px;
+  grid-template-columns: 340px minmax(0, 1fr);
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+}
+
+.modem-form-shell .ui-form-side {
+  padding: 26px 22px;
+}
+
+.modem-form-shell .ui-form-side-title {
+  font-size: 1.2rem;
+  letter-spacing: 0.01em;
+}
+
+.modem-form-shell .ui-form-side-info {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.modem-form-main {
+  background: #ffffff;
+  padding: 28px 24px;
+}
+
+.modem-form-main .ui-form-label {
+  color: #334155;
+  font-weight: 600;
+}
+
+.modem-form-main .ui-form-input-wrap {
+  border-radius: 12px;
+}
+
+.modem-form-main .ui-form-input-icon {
+  color: #64748b;
+  z-index: 2;
+}
+
+.modem-form-main .ui-form-input {
+  border-radius: 12px;
+  border: 1px solid #dbe2ea;
+  background: #f8fafc;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.modem-form-main .ui-form-input:focus {
+  border-color: #99f6e4;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+}
+
+.modem-form-main .ui-form-input-control.p-dropdown {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #dbe2ea;
+  background: #f8fafc;
+}
+
+.modem-form-main .ui-form-input-control.p-dropdown .p-dropdown-label {
+  padding: 0.65rem 2.5rem 0.65rem 2.35rem;
+}
+
+.modem-form-main .ui-form-input-control.p-dropdown .p-dropdown-trigger {
+  width: 2.2rem;
+  color: #64748b;
+}
+
+.modem-form-main .ui-form-input-control.p-dropdown:not(.p-disabled):hover {
+  border-color: #cbd5e1;
+}
+
+.modem-form-main .ui-form-input-control.p-dropdown.p-focus {
+  border-color: #99f6e4;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+  background: #ffffff;
+}
+
+.modem-form-btn {
+  border-radius: 999px !important;
+  padding: 0.5rem 1.1rem !important;
+  font-weight: 600 !important;
+}
+
+.modem-form-btn-primary {
+  background: #0f766e !important;
+  border-color: #0f766e !important;
+}
+
+.modem-form-btn-primary:hover {
+  background: #115e59 !important;
+  border-color: #115e59 !important;
+}
+
+.modem-form-btn-secondary {
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
+  background: #ffffff !important;
+}
+
+.modem-form-btn-secondary:hover {
+  color: #1e293b !important;
+  border-color: #94a3b8 !important;
+  background: #f8fafc !important;
+}
+
+.modem-live-preview {
+  position: relative;
+  min-height: 620px;
+  border-radius: 0;
+  padding: 14px 10px 20px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.22), transparent 48%),
+    radial-gradient(circle at 14% 78%, rgba(16, 185, 129, 0.16), transparent 34%),
+    radial-gradient(circle at 84% 20%, rgba(14, 165, 233, 0.16), transparent 36%),
+    #f3f4f6;
+  border: none;
+}
+
+.modem-live-preview.is-empty {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.12), transparent 62%),
+    radial-gradient(circle at 18% 84%, rgba(16, 185, 129, 0.14), transparent 42%),
+    radial-gradient(circle at 86% 18%, rgba(236, 72, 153, 0.12), transparent 42%),
+    #f8fafc;
+}
+
+.modem-live-preview::before,
+.modem-live-preview::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 51%;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  border: 1px solid rgba(147, 197, 253, 0.28);
+  pointer-events: none;
+  animation: modemRingSpin 38s linear infinite;
+}
+
+.modem-live-preview::after {
+  width: 430px;
+  height: 430px;
+  animation-duration: 48s;
+  animation-direction: reverse;
+}
+
+.modem-live-preview::before {
+  width: 536px;
+  height: 536px;
+}
+
+.modem-preview-center-card {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 51%;
+  width: 152px;
+  min-height: 272px;
+  transform: translate(-50%, -50%);
+  border-radius: 24px;
+  border: 11px solid #1e295b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  text-align: center;
+  color: #ffffff;
+  padding: 12px 10px;
+  box-shadow: 0 14px 30px rgba(30, 41, 91, 0.34);
+  background: linear-gradient(160deg, #4f46e5, #9333ea 58%, #ec4899 92%);
+  animation: modemCoreFloat 4.8s ease-in-out infinite;
+}
+
+.modem-preview-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.modem-preview-center-card small {
+  font-size: 0.66rem;
+  opacity: 0.82;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.modem-preview-center-card strong {
+  font-size: 1.02rem;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.modem-preview-center-card span {
+  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 1.3vw, 0.95rem);
+  opacity: 0.95;
+}
+
+.modem-preview-floating-card {
+  position: absolute;
+  z-index: 3;
+  width: 130px;
+  border-radius: 14px;
+  padding: 9px 10px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: 0 12px 20px rgba(15, 23, 42, 0.19);
+  transform: translate3d(0, 0, 0);
+  opacity: 0.96;
+  animation: cardIn 0.35s ease both;
+  transition: opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modem-preview-floating-card i {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.86rem;
+  margin-bottom: 3px;
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modem-preview-floating-card span {
+  font-size: 0.72rem;
+  opacity: 0.84;
+  font-weight: 700;
+}
+
+.modem-preview-floating-card strong {
+  font-size: 1rem;
+  font-size: clamp(0.82rem, 1.15vw, 1rem);
+  line-height: 1.15;
+  word-break: break-word;
+}
+
+.modem-preview-floating-card.is-filled {
+  opacity: 1;
+  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.23);
+}
+
+.modem-preview-floating-card[data-card='imei'] {
+  top: 26px;
+  right: 8px;
+  background: linear-gradient(145deg, #0ea5e9, #2563eb);
+}
+
+.modem-preview-floating-card[data-card='marca'] {
+  left: 0;
+  top: 90px;
+  background: linear-gradient(145deg, #d946ef, #7c3aed);
+}
+
+.modem-preview-floating-card[data-card='modelo'] {
+  right: 0;
+  top: 196px;
+  width: 124px;
+  padding: 9px 10px;
+  z-index: 5;
+  background: linear-gradient(145deg, #f59e0b, #f97316);
+}
+
+.modem-preview-floating-card[data-card='estadoModem'] {
+  left: 4px;
+  top: 306px;
+  width: 124px;
+  padding: 9px 10px;
+  z-index: 5;
+  background: linear-gradient(145deg, #10b981, #059669);
+}
+
+.modem-preview-floating-card[data-card='estadoEquipo'] {
+  right: 2px;
+  top: 304px;
+  width: 122px;
+  padding: 8px 9px;
+  z-index: 6;
+  background: linear-gradient(145deg, #f43f5e, #ec4899);
+}
+
+.modem-preview-floating-card[data-card='area'] {
+  left: 28px;
+  bottom: 104px;
+  background: linear-gradient(145deg, #6366f1, #3b82f6);
+}
+
+.modem-preview-floating-card[data-card='usuario'] {
+  right: 14px;
+  bottom: 34px;
+  background: linear-gradient(145deg, #a855f7, #d946ef);
+}
+
+.modem-preview-floating-card[data-card='modelo'] span,
+.modem-preview-floating-card[data-card='estadoEquipo'] span,
+.modem-preview-floating-card[data-card='estadoModem'] span {
+  font-size: 0.66rem;
+}
+
+.modem-preview-floating-card[data-card='modelo'] strong,
+.modem-preview-floating-card[data-card='estadoEquipo'] strong,
+.modem-preview-floating-card[data-card='estadoModem'] strong {
+  font-size: 0.82rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.modem-preview-chip {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  min-width: 112px;
+  border-radius: 999px;
+  padding: 7px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #ffffff;
+  background: linear-gradient(130deg, #14b8a6, #10b981);
+  box-shadow: 0 9px 18px rgba(6, 95, 70, 0.26);
+  animation: chipFloat 3.6s ease-in-out infinite;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.93);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes chipFloat {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-4px);
+  }
+}
+
+@keyframes modemRingSpin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes modemCoreFloat {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-3px);
+  }
+}
+
+@media (max-width: 900px) {
+  .modem-form-shell {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+
+  .modem-form-shell .ui-form-side {
+    gap: 10px;
+  }
+
+  .modem-live-preview {
+    min-height: 520px;
+  }
+
+  .modem-preview-floating-card {
+    width: 126px;
+    padding: 8px 9px;
+  }
+}

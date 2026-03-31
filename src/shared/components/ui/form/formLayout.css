@@ -1,0 +1,91 @@
+.ui-form-shell {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.ui-form-side {
+  color: #ecfeff;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ui-form-side-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.ui-form-side-info {
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  opacity: 0.9;
+}
+
+.ui-form-main {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.ui-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.ui-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ui-form-field-full {
+  grid-column: 1 / -1;
+}
+
+.ui-form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.ui-form-input-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.ui-form-input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.ui-form-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px 10px 42px;
+  border-radius: 16px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  background: #fff;
+  outline: none;
+}
+
+.ui-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}

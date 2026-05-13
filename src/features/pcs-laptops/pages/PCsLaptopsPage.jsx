@@ -99,6 +99,7 @@ const PCsLaptopsPage = () => {
             dataKey="id_pc"
             fetchData={getPCsLaptops}
             exportModule="laptos"
+            inportarExcel="pcsLaptopsImport"
             toolbarButtonsVariant="bootstrap"
             columns={columns}
             globalFilterFields={[
@@ -113,6 +114,9 @@ const PCsLaptopsPage = () => {
             dialogBreakpoints={{ '1200px': '92vw', '960px': '96vw' }}
             dialogHeaderNew="Nuevo PC / Laptop"
             dialogHeaderEdit="Editar PC / Laptop"
+            dialogSubtitleNew="Registro de equipo de cómputo"
+            dialogSubtitleEdit="Actualización de equipo"
+            dialogHeaderIcon="pi-desktop"
             toggleAction={toggleAction}
             getToggleMeta={getToggleMeta}
           />

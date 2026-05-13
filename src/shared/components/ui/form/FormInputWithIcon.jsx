@@ -1,10 +1,8 @@
 import './formLayout.css';
 
-const FormInputWithIcon = ({ icon, children }) => (
-  <div className="ui-form-input-wrap">
-    <span className="ui-form-input-icon">{icon}</span>
-    {children}
-  </div>
+/** Contenedor del control; el icono va en `FormField` (prop `icon`), no dentro del input. */
+const FormInputWithIcon = ({ children }) => (
+  <div className="ui-form-input-wrap">{children}</div>
 );
 
 export default FormInputWithIcon;

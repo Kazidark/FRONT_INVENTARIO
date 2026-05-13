@@ -14,28 +14,35 @@ const unwrap = (payload) => {
    LOGIN
 ========================= */
 export const loginRequest = async (data) => {
-     console.log(data)
   const res = await api.post('/auth/login', data);
-
-  // console.log('[FRONT][LOGIN] raw response:', res.data);
-   console.log(res)
   return unwrap(res.data);
 };
 
 /* =========================
-   SOLICITAR RESET
+   SOLICITAR CÓDIGO (correo)
 ========================= */
 export const forgotPasswordRequest = async (data) => {
-  // TODO: si se usa, definir endpoint real en backend
-  const res = await api.post('/forgot-password', data);
-  return unwrap(res.data);
+  const res = await api.post('/auth/forgot-password', data);
+  return res.data;
 };
 
 /* =========================
-   RESET PASSWORD
+   VALIDAR CÓDIGO DE 6 DÍGITOS
+========================= */
+export const verifyRecoveryCodeRequest = async (data) => {
+  const res = await api.post('/auth/verify-recovery-code', data);
+  return res.data;
+};
+
+/* =========================
+   NUEVA CONTRASEÑA (email + código + newPassword)
 ========================= */
 export const resetPasswordRequest = async (data) => {
-  // TODO: si se usa, definir endpoint real en backend
-  const res = await api.post('/reset-password', data);
-  return unwrap(res.data);
+  const body = {
+    email: data.email,
+    code: String(data.code ?? '').trim(),
+    newPassword: data.newPassword ?? data.password,
+  };
+  const res = await api.post('/auth/reset-password', body);
+  return res.data;
 };

@@ -85,6 +85,7 @@ const CelularesPage = () => {
             dataKey="id_celular"
             fetchData={getCelulares}
             exportModule="celulares"
+            inportarExcel="celularesImport"
             toolbarButtonsVariant="bootstrap"
             columns={columns}
             globalFilterFields={[
@@ -98,6 +99,9 @@ const CelularesPage = () => {
             dialogBreakpoints={{ '1200px': '92vw', '960px': '96vw' }}
             dialogHeaderNew="Nuevo celular"
             dialogHeaderEdit="Editar celular"
+            dialogSubtitleNew="Registro de dispositivo móvil"
+            dialogSubtitleEdit="Actualización de celular"
+            dialogHeaderIcon="pi-mobile"
             toggleAction={toggleAction}
             getToggleMeta={getToggleMeta}
           />

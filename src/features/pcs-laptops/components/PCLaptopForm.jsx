@@ -5,7 +5,8 @@ import {
   getColaboradores,
   getEstadoEquipo,
   getAsignacion,
-  getTipoEquipo
+  getTipoEquipo,
+  getUbicacion
 } from '../../../services/api/transvesalMaestro/transversal';
 import { Dropdown } from 'primereact/dropdown';
 import FormShell from '../../../shared/components/ui/form/FormShell';
@@ -14,6 +15,7 @@ import FormActions from '../../../shared/components/ui/form/FormActions';
 import FormInputWithIcon from '../../../shared/components/ui/form/FormInputWithIcon';
 import DevicePreviewSidebar from '../../../shared/components/ui/form/DevicePreviewSidebar';
 import '../../modems/components/ModemForm.css';
+import '../../../shared/components/ui/form/executive-form-modal.css';
 
 const asArray = (data) => {
   if (Array.isArray(data)) return data;
@@ -43,6 +45,7 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
   const [estadosEquipo, setEstadosEquipo] = useState([]);
   const [asignaciones, setAsignaciones] = useState([]);
   const [tiposEquipo, setTiposEquipo] = useState([]);
+  const [ubicaciones, setUbicaciones] = useState([]);
   const [loading, setLoading] = useState(false);
   const isEditMode = Boolean(selected);
 
@@ -56,7 +59,7 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
       estado_equipo: data.estado_equipo ?? '',
       id_area: data.id_area ?? '',
       usuario: data.usuario ?? '',
-      ubicacion: data.ubicacion ?? '',
+      ubicacion: data.nombre_ubicacion ?? '',
       observaciones: data.observaciones ?? '',
       anexo: data.anexo ?? ''
     });
@@ -68,18 +71,21 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
   useEffect(() => {
     const loadCatalogs = async () => {
       try {
-        const [areasData, colabData, estadoData, asigData, tipoEquipoData] = await Promise.all([
-          getAreas(),
-          getColaboradores(),
-          getEstadoEquipo(),
-          getAsignacion(),
-          getTipoEquipo()
-        ]);
+        const [areasData, colabData, estadoData, asigData, tipoEquipoData, ubicacionData] =
+          await Promise.all([
+            getAreas(),
+            getColaboradores(),
+            getEstadoEquipo(),
+            getAsignacion(),
+            getTipoEquipo(),
+            getUbicacion()
+          ]);
         setAreas(asArray(areasData));
         setColaboradores(asArray(colabData));
         setEstadosEquipo(asArray(estadoData));
         setAsignaciones(asArray(asigData));
         setTiposEquipo(asArray(tipoEquipoData));
+        setUbicaciones(asArray(ubicacionData));
       } catch (error) {
         console.error('Error loading catalogs:', error);
         setAreas([]);
@@ -87,6 +93,7 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
         setEstadosEquipo([]);
         setAsignaciones([]);
         setTiposEquipo([]);
+        setUbicaciones([]);
       }
     };
 
@@ -131,9 +138,9 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
       estado_equipo: toInt(form.estado_equipo),
       id_area: toInt(form.id_area),
       usuario: toInt(form.usuario),
-      ubicacion: form.ubicacion || null,
+      ubicacion: toInt(form.ubicacion),
       observaciones: form.observaciones || null,
-      anexo: toInt(form.anexo),
+      anexo: toInt(form.anexo)
     };
 
     try {
@@ -161,7 +168,7 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
 
   return (
     <div className="d-flex justify-content-center py-2">
-      <FormShell className="modem-form-shell">
+      <FormShell className="modem-form-shell executive-form-shell">
         <DevicePreviewSidebar
           deviceType={form.tipo_equipo || 'PC/Laptop'}
           centerIcon="pi pi-desktop"
@@ -180,8 +187,8 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
 
         <form onSubmit={handleSubmit} className="ui-form-main modem-form-main">
           <div className="ui-form-grid">
-            <FormField label="Tipo de equipo">
-              <FormInputWithIcon icon="💻">
+            <FormField label="Tipo de equipo" icon="💻">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.tipo_equipo || null}
                   onChange={(e) => setForm((prev) => ({ ...prev, tipo_equipo: e.value ?? '' }))}
@@ -194,26 +201,26 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Marca">
-              <FormInputWithIcon icon="🏷️">
+            <FormField label="Marca" icon="🏷️">
+              <FormInputWithIcon>
                 <input name="marca" value={form.marca} onChange={handleChange}  className="ui-form-input" />
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Modelo">
-              <FormInputWithIcon icon="📦">
+            <FormField label="Modelo" icon="📦">
+              <FormInputWithIcon>
                 <input name="modelo" value={form.modelo} onChange={handleChange}  className="ui-form-input" />
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Serie" full>
-              <FormInputWithIcon icon="🔢">
+            <FormField label="Serie" full icon="🔢">
+              <FormInputWithIcon>
                 <input name="serie" value={form.serie} onChange={handleChange} disabled={isEditMode}  className="ui-form-input" />
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Estado PC">
-              <FormInputWithIcon icon="⚙️">
+            <FormField label="Estado PC" icon="⚙️">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.estado_pc !== '' && form.estado_pc != null ? Number(form.estado_pc) : null}
                   onChange={(e) => setForm((prev) => ({ ...prev, estado_pc: e.value ?? '' }))}
@@ -226,8 +233,8 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Estado equipo">
-              <FormInputWithIcon icon="📍">
+            <FormField label="Estado equipo" icon="📍">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.estado_equipo !== '' && form.estado_equipo != null ? Number(form.estado_equipo) : null}
                   onChange={(e) => setForm((prev) => ({ ...prev, estado_equipo: e.value ?? '' }))}
@@ -240,8 +247,8 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Área">
-              <FormInputWithIcon icon="🏢">
+            <FormField label="Área" icon="🏢">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.id_area !== '' && form.id_area != null ? Number(form.id_area) : null}
                   onChange={(e) => setForm((prev) => ({ ...prev, id_area: e.value ?? '' }))}
@@ -254,8 +261,8 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Colaborador">
-              <FormInputWithIcon icon="👤">
+            <FormField label="Colaborador" icon="👤">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.usuario !== '' && form.usuario != null ? Number(form.usuario) : null}
                   onChange={(e) => setForm((prev) => ({ ...prev, usuario: e.value ?? '' }))}
@@ -268,20 +275,28 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Ubicación">
-              <FormInputWithIcon icon="📍">
-                <input name="ubicacion" value={form.ubicacion} onChange={handleChange} className="ui-form-input" />
+            <FormField label="Ubicación" icon="📍">
+              <FormInputWithIcon>
+                <Dropdown
+                  value={form.ubicacion !== '' && form.ubicacion != null ? Number(form.ubicacion) : null}
+                  onChange={(e) => setForm((prev) => ({ ...prev, ubicacion: e.value ?? '' }))}
+                  options={ubicaciones}
+                  optionLabel="descripcion"
+                  optionValue="id"
+                  placeholder="Seleccione"
+                  className="w-100 ui-form-input-control"
+                />
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Anexo">
-              <FormInputWithIcon icon="📎">
+            <FormField label="Anexo" icon="📎">
+              <FormInputWithIcon>
                 <input name="anexo" value={form.anexo} onChange={handleChange} className="ui-form-input" />
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Observaciones" full>
-              <FormInputWithIcon icon="📝">
+            <FormField label="Observaciones" full icon="📝">
+              <FormInputWithIcon>
                 <textarea name="observaciones" value={form.observaciones} onChange={handleChange} rows={2} className="ui-form-input" style={{ resize: 'none' }} />
               </FormInputWithIcon>
             </FormField>

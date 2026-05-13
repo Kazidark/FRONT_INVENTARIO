@@ -1,21 +1,22 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
-const API_URL = `${API_BASE_URL}/usuarios`;
+const API_URL = `${API_BASE_URL}/users`;
 
 /* =========================
    LISTAR
 ========================= */
-export const getUsuarios = async () => {
-  const res = await axios.get(API_URL);
-  return res.data;
+export const AllgetUsers = async () => {
+  const res = await axios.get(`${API_URL}/Alluser`);
+  return Array.isArray(res?.data) ? res.data : (res?.data?.result ?? []);
 };
 
 /* =========================
    CREAR
 ========================= */
 export const createUsuario = async (data) => {
-  const res = await axios.post(API_URL, data);
+   console.log(data)
+  const res = await axios.post(`${API_URL}/createUser`, data);
   return res.data;
 };
 
@@ -27,10 +28,10 @@ export const updateUsuario = async (id, data) => {
   return res.data;
 };
 
-/* =========================
-   ACTIVAR / DESACTIVAR
-========================= */
-export const updateUsuarioEstado = async (id, activo) => {
-  const res = await axios.put(`${API_URL}/${id}/estado`, { activo });
-  return res.data;
-};
+// /* =========================
+//    ACTIVAR / DESACTIVAR
+// ========================= */
+// export const updateUsuarioEstado = async (id, activo) => {
+//   const res = await axios.put(`${API_URL}/${id}/estado`, { activo });
+//   return res.data;
+// };

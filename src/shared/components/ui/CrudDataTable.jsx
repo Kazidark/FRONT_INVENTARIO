@@ -7,9 +7,9 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { FilterMatchMode } from 'primereact/api';
-import { downloadModuleExcel } from '../../../services/api/export.api';
+import { downloadModuleExcel, importModuleExcel } from '../../../services/api/export.api';
 import './CrudDataTable.css';
-
+import { useAuth } from '../../context/AuthContext';
 /**
  * Tabla CRUD reutilizable (PrimeReact DataTable)
  *
@@ -38,19 +38,44 @@ const CrudDataTable = ({
   dialogBreakpoints = { '960px': '92vw', '641px': '96vw' },
   dialogHeaderNew = 'Nuevo',
   dialogHeaderEdit = 'Editar',
+  dialogSubtitleNew = '',
+  dialogSubtitleEdit = '',
+  dialogHeaderIcon = 'pi-mobile',
   toggleAction,
   getToggleMeta,
   bulkAction,
+  showActionsColumn = true,
   formSelectedProp = 'selectedChip',
-  exportModule
+  exportModule,
+  inportarExcel
 }) => {
-  
+  const { user } = useAuth();
+  const isAdmin = useMemo(() => {
+    const roleValues = [user?.roles, user?.rol, user?.user?.rol, user?.usuario?.rol]
+      .flatMap((value) => (Array.isArray(value) ? value : [value]))
+      .filter((value) => value !== null && value !== undefined);
+
+    return roleValues.some((role) => {
+      if (typeof role === 'number') return role === 1;
+      if (typeof role === 'string') {
+        const normalized = role.trim().toLowerCase();
+        return normalized === '1' || normalized === 'admin' || normalized === 'administrador';
+      }
+      if (typeof role === 'object') {
+        const nestedName = String(role?.name || role?.nombre || '').trim().toLowerCase();
+        const nestedCode = role?.id ?? role?.code ?? role?.value;
+        return nestedName === 'admin' || nestedName === 'administrador' || Number(nestedCode) === 1;
+      }
+      return false;
+    });
+  }, [user]);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const fileInputRef = useRef(null);
 
   const [selectedRows, setSelectedRows] = useState([]);
   const [exporting, setExporting] = useState(false);
-
+  const [importing, setImporting] = useState(false);
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
   });
@@ -258,7 +283,67 @@ const CrudDataTable = ({
       setConfirmBulkVisible(false);
       setSelectedRows([]);
     }
+  }; 
+  /**
+   * fuction que   sube  excel 
+  */
+  const handleImportFile = async (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file || !inportarExcel) return;
+    setImporting(true);
+    try {
+      const { data } = await importModuleExcel(inportarExcel, file);
+      await doFetch();
+      const detail =
+        (typeof data?.message === 'string' && data.message) ||
+        'Excel importado correctamente.';
+      toast.current?.show({
+        severity: 'success',
+        summary: 'Listo',
+        detail,
+        life: 4000
+      });
+    } catch (err) {
+      const apiMsg = err?.response?.data?.message;
+      const detail = Array.isArray(apiMsg)
+        ? apiMsg.join(' ')
+        : typeof apiMsg === 'string'
+          ? apiMsg
+          : 'No se pudo importar el Excel.';
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error',
+        detail,
+        life: 5000
+      });
+    } finally {
+      setImporting(false);
+      e.target.value = ''; // permite volver a subir el mismo archivo
+    }
   };
+
+  
+
+  const dialogTitleText = editingRow ? dialogHeaderEdit : dialogHeaderNew;
+  const dialogSubtitleText = editingRow ? dialogSubtitleEdit : dialogSubtitleNew;
+
+  const dialogHeaderContent = useMemo(
+    () => (
+      <div className="crud-dialog-heading-wrap">
+        <span className="crud-dialog-heading-icon" aria-hidden>
+          <i className={`pi ${dialogHeaderIcon}`} />
+        </span>
+        <span className="crud-dialog-heading-text">
+          <span className="crud-dialog-heading-title">{dialogTitleText}</span>
+          {dialogSubtitleText ? (
+            <span className="crud-dialog-heading-sub">{dialogSubtitleText}</span>
+          ) : null}
+        </span>
+      </div>
+    ),
+    [dialogTitleText, dialogSubtitleText, dialogHeaderIcon]
+  );
 
   const header = useMemo(
     () => (
@@ -285,28 +370,60 @@ const CrudDataTable = ({
           </div>
 
           <div className="d-flex gap-2 flex-nowrap crud-toolbar-actions">
-            <ToolbarBtn
-              label={exporting ? 'Exportando...' : 'Exportar'}
-              icon="pi pi-download"
-              severity="help"
-              onClick={exportData}
-              disabled={exporting}
-            />
-            {FormComponent ? <ToolbarBtn label="Nuevo" icon="pi pi-plus" severity="success" onClick={openNew} /> : null}
-            {/* {bulkAction ? (
+            {exportModule && isAdmin ? (
+              <ToolbarBtn
+                label={exporting ? 'Exportando...' : 'Exportar'}
+                icon="pi pi-download"
+                severity="help"
+                onClick={exportData}
+                disabled={exporting}
+              />
+            ) : null}
+            {inportarExcel && isAdmin ? (
+              <>
+                <ToolbarBtn
+                  label={importing ? 'Importando...' : 'Importar Excel'}
+                  icon="pi pi-upload"
+                  severity="help"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={importing}
+                />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                  className="d-none"
+                  aria-hidden
+                  onChange={handleImportFile}
+                />
+              </>
+            ) : null}
+            
+            {FormComponent ? 
+             isAdmin ? <ToolbarBtn label="Nuevo" icon="pi pi-plus" severity="success" onClick={openNew} /> : null : null}
+            {bulkAction && isAdmin ? (
               <ToolbarBtn
                 label={bulkAction.label}
                 icon={bulkAction.icon}
                 severity={bulkAction.severity}
-                onClick={() => setConfirmBulkVisible(true)}
-                disabled={!selectedRows?.length}
-              />
-            ) : null} */}
+                onClick={() => setConfirmBulkVisible(true)} disabled={!selectedRows?.length} />
+            ) : null}
           </div>
         </div>
       </div>
     ),
-    [FormComponent, bulkAction, globalFilterValue, title, toolbarButtonsVariant, exporting, exportModule]
+    [
+      FormComponent,
+      bulkAction,
+      globalFilterValue,
+      title,
+      toolbarButtonsVariant,
+      exporting,
+      exportModule,
+      inportarExcel,
+      importing,
+      isAdmin
+    ]
   );
 
   const actionBodyTemplate = (row) => {
@@ -393,6 +510,7 @@ const CrudDataTable = ({
 
   return (
     <div className="crud-table-shell">
+  
       <Toast ref={toast} />
 
       <div className="card shadow-sm border-0 crud-header-card">
@@ -416,7 +534,7 @@ const CrudDataTable = ({
           className="p-datatable-sm crud-data-table"
           loading={loading}
           filters={filters}
-          globalFilterFields={resolvedGlobalFields}
+         globalFilterFields={resolvedGlobalFields}
         >
           {bulkAction ? (
             <Column selectionMode="multiple" exportable={false} style={{ width: '3rem' }} />
@@ -446,7 +564,8 @@ const CrudDataTable = ({
             );
           })}
 
-          {FormComponent || toggleAction ? (
+          {showActionsColumn && (FormComponent || toggleAction) ? (
+          isAdmin ? (
             <Column
               header="Acciones"
               body={actionBodyTemplate}
@@ -456,7 +575,7 @@ const CrudDataTable = ({
               className="crud-actions-column"
               headerClassName="crud-actions-column"
             />
-          ) : null}
+          ) : null) : null}
         </DataTable>
         </div>
         </div>
@@ -467,7 +586,7 @@ const CrudDataTable = ({
           visible={dialogVisible}
           style={{ width: dialogWidth }}
           breakpoints={dialogBreakpoints}
-          header={editingRow ? dialogHeaderEdit : dialogHeaderNew}
+          header={dialogHeaderContent}
           headerClassName="crud-dialog-header"
           modal
           className="p-fluid crud-dialog"

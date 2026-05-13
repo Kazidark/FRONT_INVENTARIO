@@ -14,6 +14,7 @@ import FormActions from '../../../shared/components/ui/form/FormActions';
 import FormInputWithIcon from '../../../shared/components/ui/form/FormInputWithIcon';
 import DevicePreviewSidebar from '../../../shared/components/ui/form/DevicePreviewSidebar';
 import '../../modems/components/ModemForm.css';
+import '../../../shared/components/ui/form/executive-form-modal.css';
 
 const emptyForm = {
   marca: '',
@@ -23,7 +24,10 @@ const emptyForm = {
   estado_equipo: '',
   id_area: '',
   usuario: '',
-  numero_chip: ''
+  numero_chip: '',
+  ticket: '',
+  observacion: '',
+  correo_electronico: ''
 };
 
 const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
@@ -45,7 +49,10 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
       estado_equipo: data.estado_equipo ?? '',
       id_area: data.id_area ?? '',
       usuario: data.usuario ?? '',
-      numero_chip: data.numero_chip ?? ''
+      numero_chip: data.numero_chip ?? '',
+      ticket: data.ticket ?? data.tickets ?? '',
+      observacion: data.observacion ?? data.observaciones ?? '',
+      correo_electronico: data.correo_electronico ?? data.correoElectronico ?? '',
     });
   };
 
@@ -120,6 +127,9 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
       id_area: toInt(form.id_area),
       usuario: toInt(form.usuario),
       numero_chip: toInt(form.numero_chip),
+      ticket: form.ticket,
+      correo_electronico: form.correo_electronico,
+      observacion: form.observacion,
     };
 
     try {
@@ -148,7 +158,7 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
 
   return (
     <div className="d-flex justify-content-center py-2">
-      <FormShell className="modem-form-shell">
+      <FormShell className="modem-form-shell executive-form-shell">
         <DevicePreviewSidebar
           deviceType="Celular"
           centerIcon="pi pi-mobile"
@@ -168,8 +178,8 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
 
         <form onSubmit={handleSubmit} className="ui-form-main modem-form-main">
           <div className="ui-form-grid">
-            <FormField label="IMEI" full>
-              <FormInputWithIcon icon="🔢">
+            <FormField label="IMEI" full icon="🔢">
+              <FormInputWithIcon>
                 <input
                   name="imei_celular"
                   value={form.imei_celular}
@@ -182,8 +192,8 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Marca">
-              <FormInputWithIcon icon="🏷️">
+            <FormField label="Marca" icon="🏷️">
+              <FormInputWithIcon>
                 <input
                   name="marca"
                   value={form.marca}
@@ -194,8 +204,8 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Modelo">
-              <FormInputWithIcon icon="📱">
+            <FormField label="Modelo" icon="📱">
+              <FormInputWithIcon>
                 <input
                   name="modelo"
                   value={form.modelo}
@@ -206,8 +216,8 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Estado celular">
-              <FormInputWithIcon icon="⚙️">
+            <FormField label="Estado celular" icon="⚙️">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.estado_celular !== '' && form.estado_celular != null ? Number(form.estado_celular) : null}
                   onChange={(e) =>
@@ -222,8 +232,8 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Estado equipo">
-              <FormInputWithIcon icon="📍">
+            <FormField label="Estado equipo" icon="📍">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.estado_equipo !== '' && form.estado_equipo != null ? Number(form.estado_equipo) : null}
                   onChange={(e) =>
@@ -238,8 +248,8 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Área">
-              <FormInputWithIcon icon="🏢">
+            <FormField label="Área" icon="🏢">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.id_area !== '' && form.id_area != null ? Number(form.id_area) : null}
                   onChange={(e) =>
@@ -254,8 +264,8 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Colaborador">
-              <FormInputWithIcon icon="👤">
+            <FormField label="Colaborador" icon="👤">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.usuario !== '' && form.usuario != null ? Number(form.usuario) : null}
                   onChange={(e) =>
@@ -270,8 +280,8 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Chip asignado">
-              <FormInputWithIcon icon="📶">
+            <FormField label="Chip asignado" icon="📶">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.numero_chip !== '' && form.numero_chip != null ? Number(form.numero_chip) : null}
                   onChange={(e) =>
@@ -282,6 +292,36 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
                   optionValue="id_chip"
                   placeholder="Seleccione"
                   className="w-100 ui-form-input-control"
+                />
+              </FormInputWithIcon>
+            </FormField>
+            <FormField label="Ticket" icon="🎫">
+              <FormInputWithIcon>
+                <input
+                  name="ticket"
+                  value={form.ticket}
+                  onChange={handleChange}
+                  className="ui-form-input"
+                />
+              </FormInputWithIcon>
+            </FormField>
+            <FormField label="Correo Electronico" icon="📧">
+              <FormInputWithIcon>
+                <input
+                  name="correo_electronico"
+                  value={form.correo_electronico}
+                  onChange={handleChange}
+                  className="ui-form-input"
+                />
+              </FormInputWithIcon>
+            </FormField>
+            <FormField label="Observacion" icon="📝">
+              <FormInputWithIcon>
+                <input
+                  name="observacion"
+                  value={form.observacion}
+                  onChange={handleChange}
+                  className="ui-form-input"
                 />
               </FormInputWithIcon>
             </FormField>

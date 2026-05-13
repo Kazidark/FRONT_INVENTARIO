@@ -1,6 +1,14 @@
 import { api } from '../config';
 
 const DEFAULT_FILENAME = 'reporte-inventario.xlsx';
+const IMPORT_ENDPOINTS = {
+  modemsImport: 'excel/upload-model',
+  celularesImport: 'excel/upload-celulares',
+  chipsImport: 'excel/upload-chips',
+  pcsLaptopsImport: 'excel/upload-pcs-laptops',
+  monitoresImport: 'excel/upload-monitores',
+  tabletsImport: 'excel/upload-tablets'
+};
 
 const getFileNameFromDisposition = (headerValue) => {
   if (!headerValue) return null;
@@ -33,4 +41,20 @@ export const downloadModuleExcel = async (moduleKey, fallbackName = DEFAULT_FILE
   anchor.click();
   anchor.remove();
   window.URL.revokeObjectURL(url);
+};
+
+export const importModuleExcel = async (moduleKey, file) => {
+  const endpoint = IMPORT_ENDPOINTS[moduleKey];
+  if (!endpoint) {
+    throw new Error(`No existe endpoint de importación para "${moduleKey}"`);
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return api.post(endpoint, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
 };

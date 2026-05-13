@@ -110,6 +110,7 @@ const TabletsPage = () => {
             dataKey="id_tablet"
             fetchData={getTablets}
             exportModule="tablets"
+            inportarExcel="tabletsImport"
             toolbarButtonsVariant="bootstrap"
             columns={columns}
             globalFilterFields={[
@@ -135,6 +136,9 @@ const TabletsPage = () => {
             formSelectedProp="selectedTablet"
             dialogHeaderNew="Nueva tablet"
             dialogHeaderEdit="Editar tablet"
+            dialogSubtitleNew="Registro de tablet"
+            dialogSubtitleEdit="Actualización de tablet"
+            dialogHeaderIcon="pi-tablet"
             toggleAction={toggleAction}
             getToggleMeta={getToggleMeta}
             bulkAction={bulkAction}

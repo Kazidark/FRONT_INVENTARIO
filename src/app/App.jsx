@@ -38,7 +38,11 @@ function App() {
     <Routes>
       <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/dashboard" replace />} />
       <Route path="/forgot-password" element={!user ? <ForgotPasswordPage /> : <Navigate to="/dashboard" replace />} />
-      <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route
+        path="/reset-password/:token"
+        element={<Navigate to="/reset-password" replace />}
+      />
       <Route path="/*" element={user ? <MainLayout /> : <Navigate to="/login" />} />
     </Routes>
   );
@@ -60,7 +64,7 @@ function MainLayout() {
       <header className="app-topbar navbar bg-white border-bottom sticky-top">
         <div className="container-fluid">
           <div className="app-topbar-inner">
-            <div className="d-flex align-items-center gap-2">
+            <div className="d-flex align-items-center gap-2 flex-shrink-0">
               <button
                 type="button"
                 className="app-topbar-icon-btn d-lg-none"
@@ -81,7 +85,10 @@ function MainLayout() {
                 <i className={`pi ${collapsed ? 'pi-bars' : 'pi-angle-left'}`} />
               </button>
 
-              <div className="d-flex align-items-center gap-2">
+              <div className="app-brand-wrap">
+                <span className="app-brand-logo" aria-hidden="true">
+                  <i className="pi pi-home" />
+                </span>
                 <span className="app-brand">
                   <span className="app-brand-name">SANNA</span>
                   <span className="app-brand-sub">Inventario</span>
@@ -89,12 +96,23 @@ function MainLayout() {
               </div>
             </div>
 
-            <div className="ms-auto d-flex align-items-center gap-2">
+            <div className="app-topbar-search d-none d-md-flex">
+              <i className="pi pi-search app-topbar-search-icon" aria-hidden="true" />
+              <input
+                type="search"
+                className="app-topbar-search-input"
+                placeholder="Buscar productos, órdenes..."
+                aria-label="Buscar productos, órdenes"
+              />
+              <span className="app-topbar-search-shortcut">⌘K</span>
+            </div>
+
+            <div className="ms-auto d-flex align-items-center gap-2 flex-shrink-0">
               <button type="button" className="app-topbar-icon-btn" aria-label="Calendario" title="Calendario">
                 <i className="pi pi-calendar" />
               </button>
-              <button type="button" className="app-topbar-icon-btn" aria-label="Perfil" title="Perfil">
-                <i className="pi pi-user" />
+              <button type="button" className="app-topbar-icon-btn" aria-label="Notificaciones" title="Notificaciones">
+                <i className="pi pi-bell" />
               </button>
               <button type="button" className="app-topbar-icon-btn" aria-label="Configuración" title="Configuración">
                 <i className="pi pi-cog" />
@@ -130,6 +148,7 @@ function MainLayout() {
               <Route path="/asignaciones" element={<AsignacionesPage />} />
               <Route path="/usuarios" element={<UsuariosPage />} />
               <Route path="/colaboradores" element={<ColaboradoresPage />} />
+              <Route path="/perfiles" element={<ColaboradoresPage />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </div>
@@ -169,6 +188,7 @@ function UserPill({ user }) {
     <div className="app-user-pill" title={email || role || ''}>
       <div className="app-user-avatar" aria-hidden="true">
         {getInitials(label)}
+        <span className="app-user-status-dot" />
       </div>
       <div className="app-user-meta">
         <div className="app-user-email">
@@ -177,6 +197,7 @@ function UserPill({ user }) {
         </div>
         <div className="app-user-role">{role || 'Sesión activa'}</div>
       </div>
+      <i className="pi pi-angle-down app-user-chevron" aria-hidden="true" />
     </div>
   );
 }

@@ -64,6 +64,7 @@ const ChipsPage = () => {
             dataKey="id_chip"
             fetchData={getChips}
             exportModule="chips"
+            inportarExcel="chipsImport"
             toolbarButtonsVariant="bootstrap"
             columns={columns}
             globalFilterFields={globalFilterFields}
@@ -73,6 +74,9 @@ const ChipsPage = () => {
             dialogBreakpoints={{ '1200px': '92vw', '960px': '96vw' }}
             dialogHeaderNew="Nuevo chip"
             dialogHeaderEdit="Editar chip"
+            dialogSubtitleNew="Registro de chip SIM"
+            dialogSubtitleEdit="Actualización de chip SIM"
+            dialogHeaderIcon="pi-id-card"
             toggleAction={toggleAction}
             getToggleMeta={getToggleMeta}
             bulkAction={bulkAction}

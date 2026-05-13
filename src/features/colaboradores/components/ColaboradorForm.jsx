@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { createColaborador, updateColaborador } from '../../../services/api/colaboradores.api';
+import * as colaboradoresApi from '../../../services/api/colaboradores.api';
 import FormShell from '../../../shared/components/ui/form/FormShell';
 import FormHeader from '../../../shared/components/ui/form/FormHeader';
 import FormField from '../../../shared/components/ui/form/FormField';
@@ -9,38 +9,59 @@ import { toast } from 'react-hot-toast';
 
 const emptyForm = {
   nombre_completo: '',
-  documento: '',
-  email: ''
+  email: '',
+  activo: true
 };
 
 const ColaboradorForm = ({ selected, onSaved }) => {
+  const { createColaborador, updateColaborador } = colaboradoresApi;
   const isEdit = Boolean(selected);
   const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (selected) {
+      const activoFromApi = selected.activo;
+      const normalizedActivo =
+        activoFromApi === true ||
+        activoFromApi === 1 ||
+        activoFromApi === '1';
+
       setForm({
         nombre_completo: selected.nombre_completo || '',
-        documento: selected.documento || '',
-        email: selected.email || ''
+        email: selected.email || '',
+        activo: normalizedActivo
       });
     } else {
       setForm(emptyForm);
     }
   }, [selected]);
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'activo') {
+      setForm({ ...form, activo: value === 'true' });
+      return;
+    }
+    setForm({ ...form, [name]: value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      isEdit
-        ? await updateColaborador(selected.id_colaborador, form)
-        : await createColaborador(form);
+      const payload = {
+        nombre_completo: form.nombre_completo?.trim(),
+        email: form.email?.trim(),
+        activo: form.activo ? 1 : 0
+      };
+
+      if (isEdit && typeof updateColaborador === 'function') {
+        await updateColaborador(selected.id_colaborador, payload);
+      } else {
+        await createColaborador(payload);
+      }
 
       toast.success('Colaborador guardado correctamente');
       onSaved();
@@ -58,7 +79,7 @@ const ColaboradorForm = ({ selected, onSaved }) => {
         <FormHeader
           title={isEdit ? 'Editar colaborador' : 'Nuevo colaborador'}
           info={[
-            { label: 'Documento', value: form.documento || '—' },
+            { label: 'Estado', value: form.activo ? 'Activo' : 'Cesado' },
             { label: 'Correo', value: form.email || '—' }
           ]}
           gradient="linear-gradient(180deg,#36ad55,#115e59)"
@@ -66,8 +87,8 @@ const ColaboradorForm = ({ selected, onSaved }) => {
 
         <form onSubmit={handleSubmit} className="ui-form-main">
           <div className="ui-form-grid">
-            <FormField label="Nombre completo" full>
-              <FormInputWithIcon icon="👤">
+            <FormField label="Nombre" full icon="👤">
+              <FormInputWithIcon>
                 <input
                   name="nombre_completo"
                   value={form.nombre_completo}
@@ -78,27 +99,30 @@ const ColaboradorForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Documento">
-              <FormInputWithIcon icon="🪪">
+            <FormField label="Correo" icon="📧">
+              <FormInputWithIcon>
                 <input
-                  name="documento"
-                  value={form.documento}
+                  name="email"
+                  type="email"
+                  value={form.email}
                   onChange={handleChange}
                   required
-                  disabled={isEdit}
                   className="ui-form-input"
                 />
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Email">
-              <FormInputWithIcon icon="📧">
-                <input
-                  name="email"
-                  value={form.email}
+            <FormField label="Cesado" icon="📌">
+              <FormInputWithIcon>
+                <select
+                  name="activo"
+                  value={String(form.activo)}
                   onChange={handleChange}
                   className="ui-form-input"
-                />
+                >
+                  <option value="true">No</option>
+                  <option value="false">Si</option>
+                </select>
               </FormInputWithIcon>
             </FormField>
           </div>

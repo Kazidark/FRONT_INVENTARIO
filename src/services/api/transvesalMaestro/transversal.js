@@ -95,3 +95,14 @@ export const getTipoEquipo = async () => {
     throw new Error('Error al obtener los tipos de equipo');
   }
 };
+export const getUbicacion = async () => {
+  try {
+    const response = await api.get('/master-data/ubicacion');
+    const data = response.data;
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.result)) return data.result;
+    return [];
+  } catch (error) {
+    throw new Error('Error al obtener los tipos de equipo');
+  }
+};

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createChip, updateChip, getChipById } from '../../../services/api/chips.api';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { InputText } from 'primereact/inputtext';
 import {
   getAreas,
   getColaboradores,
@@ -14,6 +16,7 @@ import FormActions from '../../../shared/components/ui/form/FormActions';
 import FormInputWithIcon from '../../../shared/components/ui/form/FormInputWithIcon';
 import DevicePreviewSidebar from '../../../shared/components/ui/form/DevicePreviewSidebar';
 import '../../modems/components/ModemForm.css';
+import '../../../shared/components/ui/form/executive-form-modal.css';
 
 const asArray = (data) => {
   if (Array.isArray(data)) return data;
@@ -23,6 +26,9 @@ const asArray = (data) => {
 };
 
 const emptyForm = {
+  ticket: '',
+  correo_electronico: '',
+  observacion: '',
   numero_chip: '',
   iccid: '',
   tipo_chip: '',
@@ -50,7 +56,10 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
       operador: data.operador ?? '',
       estado_chip: data.estado_chip ?? '',
       area: data.area ?? '',
-      usuario: data.usuario ?? ''
+      usuario: data.usuario ?? '',
+      ticket: data.ticket ?? '',
+      correo_electronico: data.correo_electronico ?? '',
+      observacion: data.observacion ?? ''
     });
   };
 
@@ -157,7 +166,11 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
       estado_chip: toInt(form.estado_chip),
       area: toInt(form.area),
       usuario: toInt(form.usuario),
+      ticket: form.ticket,
+      correo_electronico: form.correo_electronico,
+      observacion: form.observacion,
     };
+
 
     try {
       isEdit
@@ -183,7 +196,7 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
 
   return (
     <div className="d-flex justify-content-center py-2">
-      <FormShell className="modem-form-shell">
+      <FormShell className="modem-form-shell executive-form-shell">
         <DevicePreviewSidebar
           deviceType="Chip"
           centerIcon="pi pi-sim-card"
@@ -202,35 +215,37 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
 
         <form onSubmit={handleSubmit} className="ui-form-main modem-form-main">
           <div className="ui-form-grid">
-            <FormField label="Numero de chip">
-              <FormInputWithIcon icon="📶">
+            <FormField label="Numero de chip" icon="📶">
+              <FormInputWithIcon>
                 <input
                   id="numero_chip"
                   name="numero_chip"
                   value={form.numero_chip}
                   onChange={handleChange}
                   disabled={isEdit}
-                  
+                  required
+                  maxLength={9}
                   className="ui-form-input"
                 />
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="ICCID" full>
-              <FormInputWithIcon icon="🔢">
+            <FormField label="ICCID" full icon="🔢">
+              <FormInputWithIcon>
                 <input
                   id="iccid"
                   name="iccid"
                   value={form.iccid}
                   onChange={handleChange}
-                  
+                  required
+                  maxLength={15}
                   className="ui-form-input"
                 />
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Operador">
-              <FormInputWithIcon icon="📡">
+            <FormField label="Operador" icon="📡">
+              <FormInputWithIcon>
               <Dropdown
               value={form.operador}
               onChange={(e) => setForm((prev) => ({ ...prev, operador: e.value ?? '' }))}
@@ -243,8 +258,8 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Estado del chip">
-              <FormInputWithIcon icon="⚙️">
+            <FormField label="Estado del chip" icon="⚙️">
+              <FormInputWithIcon>
                 <Dropdown
                   id="estado_chip"
                   value={form.estado_chip}
@@ -258,8 +273,8 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Area">
-              <FormInputWithIcon icon="🏢">
+            <FormField label="Area" icon="🏢">
+              <FormInputWithIcon>
                 <Dropdown
                   id="area"
                   value={form.area}
@@ -273,8 +288,8 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Colaborador">
-              <FormInputWithIcon icon="👤">
+            <FormField label="Colaborador" icon="👤">
+              <FormInputWithIcon>
               <Dropdown
               value={form.usuario}
               onChange={(e) => setForm((prev) => ({ ...prev, usuario: e.value ?? '' }))}
@@ -284,13 +299,11 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
               placeholder={colaboradorOptions.length ? 'Seleccione' : 'Sin colaboradores'}
               className="w-100 ui-form-input-control"
               />
-
-           
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Tipo de chip">
-              <FormInputWithIcon icon="📞">
+            <FormField label="Tipo de chip" icon="📞">
+              <FormInputWithIcon>
                 <Dropdown
                   id="tipo_chip"
                   value={form.tipo_chip}
@@ -301,6 +314,36 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
                   placeholder={tipoChipOptions.length ? 'Seleccione' : 'Sin tipos'}
                   className="w-100 ui-form-input-control"
                 />
+              </FormInputWithIcon>
+            </FormField>
+            <FormField label="Ticket" icon="🎫">
+              <FormInputWithIcon>
+              <InputText
+              value={form.ticket}
+              onChange={(e) => setForm((prev) => ({ ...prev, ticket: e.target.value ?? '' }))}
+              placeholder="Ingrese el ticket"
+              className="w-100 ui-form-input-control"
+              ></InputText>
+              </FormInputWithIcon>
+            </FormField>
+            <FormField label="Correo Electronico" icon="📧">
+              <FormInputWithIcon>
+                <InputText
+                value={form.correo_electronico}
+                onChange={(e) => setForm((prev) => ({ ...prev, correo_electronico: e.target.value ?? '' }))}
+                placeholder="Ingrese el correo electronico"
+                className="w-100 ui-form-input-control"
+                ></InputText>
+              </FormInputWithIcon>
+            </FormField>
+            <FormField label="Observaciones" icon="📝">
+              <FormInputWithIcon>
+              <InputTextarea 
+              value={form.observacion}
+              onChange={(e) => setForm((prev) => ({ ...prev, observacion: e.target.value ?? '' }))}
+              placeholder="Ingrese el correo electronico"
+              className="w-100 ui-form-input-control"
+              />
               </FormInputWithIcon>
             </FormField>
           </div>

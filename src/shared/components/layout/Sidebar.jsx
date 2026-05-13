@@ -2,7 +2,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMobileClose }) => {
   const { user, logout } = useAuth();
-  const isAdmin = user?.rol === 'Administrador';
+  const isAdmin = user?.roles === 1;
 
   const handleLogout = () => {
     logout();
@@ -14,7 +14,7 @@ const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMo
       <div className="px-3 pt-3 pb-2 d-flex align-items-center gap-2">
         <button
           type="button"
-          className="app-topbar-icon-btn"
+          className="app-sidebar-toggle-btn"
           onClick={toggle}
           title={collapsed ? 'Mostrar' : 'Ocultar'}
           aria-label={collapsed ? 'Mostrar' : 'Ocultar'}
@@ -30,9 +30,8 @@ const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMo
       </div>
 
       <div className="app-sidebar-scroll flex-grow-1 px-2 pb-2">
-        {!collapsed && <div className="app-nav-section">INVENTARIO</div>}
         <div className="nav nav-pills flex-column gap-1">
-          <MenuItem icon="pi-home" label="Dashboard" {...menuProps('dashboard')} />
+          <MenuItem icon="pi-home" label="Inicio" {...menuProps('dashboard')} />
           <MenuItem icon="pi-wifi" label="Módems" {...menuProps('modems')} />
           <MenuItem icon="pi-sim-card" label="Chips" {...menuProps('chips')} />
           <MenuItem icon="pi-mobile" label="Celulares" {...menuProps('celulares')} />
@@ -40,11 +39,12 @@ const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMo
           <MenuItem icon="pi-window-maximize" label="Monitores" {...menuProps('monitores')} />
           <MenuItem icon="pi-tablet" label="Tablets" {...menuProps('tablets')} />
           <MenuItem icon="pi-link" label="Asignaciones" {...menuProps('asignaciones')} />
+
         </div>
 
         {isAdmin && (
           <>
-            {!collapsed && <div className="app-nav-section mt-3">ADMIN</div>}
+            {!collapsed && <div className="app-nav-section mt-3">Administración</div>}
             <div className="nav nav-pills flex-column gap-1">
               <MenuItem icon="pi-users" label="Colaboradores" {...menuProps('colaboradores')} />
               <MenuItem icon="pi-user" label="Usuarios" {...menuProps('usuarios')} />
@@ -53,10 +53,10 @@ const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMo
         )}
       </div>
 
-      <div className="p-3 border-top border-light border-opacity-10">
+      <div className="p-3 app-sidebar-logout-wrap">
         <button
           type="button"
-          className={`btn btn-outline-danger w-100 d-flex align-items-center justify-content-${collapsed ? 'center' : 'start'} gap-2`}
+          className={`app-logout-btn w-100 d-flex align-items-center justify-content-${collapsed ? 'center' : 'start'} gap-2`}
           onClick={handleLogout}
         >
           <i className="pi pi-sign-out" />
@@ -90,9 +90,8 @@ const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMo
         </div>
 
         <div className="app-sidebar-scroll px-2 py-2">
-          <div className="app-nav-section">INVENTARIO</div>
           <div className="nav nav-pills flex-column gap-1">
-            <MenuItem icon="pi-home" label="Dashboard" {...menuPropsMobile('dashboard')} />
+            <MenuItem icon="pi-home" label="Inicio" {...menuPropsMobile('dashboard')} />
             <MenuItem icon="pi-wifi" label="Módems" {...menuPropsMobile('modems')} />
             <MenuItem icon="pi-sim-card" label="Chips" {...menuPropsMobile('chips')} />
             <MenuItem icon="pi-mobile" label="Celulares" {...menuPropsMobile('celulares')} />
@@ -104,7 +103,7 @@ const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMo
 
           {isAdmin && (
             <>
-              <div className="app-nav-section mt-3">ADMIN</div>
+              <div className="app-nav-section mt-3">Administración</div>
               <div className="nav nav-pills flex-column gap-1">
                 <MenuItem icon="pi-users" label="Colaboradores" {...menuPropsMobile('colaboradores')} />
                 <MenuItem icon="pi-user" label="Usuarios" {...menuPropsMobile('usuarios')} />
@@ -113,10 +112,10 @@ const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMo
           )}
         </div>
 
-        <div className="mt-auto p-3 border-top border-light border-opacity-10">
+        <div className="mt-auto p-3 app-sidebar-logout-wrap">
           <button
             type="button"
-            className="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
+            className="app-logout-btn w-100 d-flex align-items-center justify-content-center gap-2"
             onClick={handleLogout}
           >
             <i className="pi pi-sign-out" />

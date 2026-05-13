@@ -14,12 +14,26 @@ const ForgotPasswordPage = () => {
     setMessage('');
 
     try {
-      const res = await forgotPasswordRequest({ email }); // ✅ CLAVE
-      setMessage(res.message);
+      const trimmed = email.trim();
+      const res = await forgotPasswordRequest({ email: trimmed });
+      const inner = res?.result?.[0] ?? res?.data ?? {};
+      const msg =
+        (typeof inner?.message === 'string' ? inner.message : '') ||
+        (typeof res?.message === 'string' ? res.message : '') ||
+        'Revisa tu bandeja de entrada.';
+      const ttl = Number(inner?.expiresInMinutes ?? 60);
+      const ttlMs = (Number.isFinite(ttl) ? ttl : 60) * 60_000;
+      setMessage(msg);
+      navigate('/reset-password', {
+        state: {
+          email: trimmed.toLowerCase(),
+          codeExpiresAt: Date.now() + ttlMs,
+        },
+      });
     } catch (error) {
+      const m = error.response?.data?.message;
       setMessage(
-        error.response?.data?.message ||
-        'Error al procesar la solicitud'
+        (Array.isArray(m) ? m[0] : m) || 'Error al procesar la solicitud',
       );
     } finally {
       setLoading(false);
@@ -29,9 +43,10 @@ const ForgotPasswordPage = () => {
   return (
     <div style={styles.bg}>
       <div style={styles.card}>
-        <h2 style={styles.title}>🔐 Recuperar contraseña</h2>
+        <h2 style={styles.title}>Recuperar contraseña</h2>
         <p style={styles.subtitle}>
-          Ingresa tu correo registrado y te enviaremos un enlace seguro
+          Ingresa tu correo registrado. Te enviaremos un código de 6 dígitos;
+          luego podrás elegir una nueva contraseña.
         </p>
 
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -44,18 +59,19 @@ const ForgotPasswordPage = () => {
             required
           />
 
-          <button style={styles.button} disabled={loading}>
-            {loading ? 'Enviando…' : 'Enviar enlace'}
+          <button type="submit" style={styles.button} disabled={loading}>
+            {loading ? 'Enviando…' : 'Enviar código'}
           </button>
         </form>
 
         {message && <p style={styles.msg}>{message}</p>}
 
         <button
+          type="button"
           style={styles.link}
           onClick={() => navigate('/login')}
         >
-          ⬅ Volver al login
+          Volver al login
         </button>
       </div>
     </div>
@@ -71,7 +87,7 @@ const styles = {
     backgroundPosition: 'center',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   card: {
     width: 420,
@@ -80,28 +96,28 @@ const styles = {
     background: 'rgba(255,255,255,0.95)',
     boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
     backdropFilter: 'blur(10px)',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   title: {
     fontSize: 24,
     fontWeight: 700,
-    color: '#1f2937'
+    color: '#1f2937',
   },
   subtitle: {
     fontSize: 14,
     marginBottom: 20,
-    color: '#4b5563'
+    color: '#4b5563',
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 14
+    gap: 14,
   },
   input: {
     padding: 14,
     borderRadius: 10,
     border: '1px solid #d1d5db',
-    fontSize: 14
+    fontSize: 14,
   },
   button: {
     padding: 14,
@@ -110,12 +126,12 @@ const styles = {
     background: 'linear-gradient(135deg, #2563eb, #1e40af)',
     color: '#fff',
     fontWeight: 600,
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
   msg: {
     marginTop: 16,
     fontSize: 14,
-    color: '#2563eb'
+    color: '#2563eb',
   },
   link: {
     marginTop: 20,
@@ -123,8 +139,8 @@ const styles = {
     border: 'none',
     color: '#2563eb',
     cursor: 'pointer',
-    fontSize: 13
-  }
+    fontSize: 13,
+  },
 };
 
 export default ForgotPasswordPage;

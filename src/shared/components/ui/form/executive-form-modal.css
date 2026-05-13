@@ -1,0 +1,229 @@
+/**
+ * Diseño unificado tipo modal ejecutivo (inputs, panel derecho, botones).
+ * No modifica la vista previa del dispositivo: no hay reglas para .modem-live-preview ni .modem-preview-*.
+ */
+
+.executive-form-shell.modem-form-shell {
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+/* Panel del formulario (columna derecha) */
+.executive-form-shell .modem-form-main,
+.executive-form-shell form.ui-form-main.modem-form-main,
+.executive-form-shell form.ui-form-main {
+  background: #ffffff;
+  padding: 26px 26px 22px;
+}
+
+.executive-form-shell .ui-form-grid {
+  gap: 16px 20px;
+}
+
+.executive-form-shell .ui-form-field {
+  gap: 7px;
+}
+
+.executive-form-shell .ui-form-label {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.executive-form-shell .ui-form-input-wrap {
+  border-radius: 12px;
+}
+
+/* Inputs nativos y PrimeReact */
+.executive-form-shell .ui-form-input,
+.executive-form-shell input.ui-form-input,
+.executive-form-shell textarea.ui-form-input,
+.executive-form-shell select.ui-form-input,
+.executive-form-shell .p-inputtext.ui-form-input,
+.executive-form-shell .p-inputtextarea {
+  min-height: 42px;
+  border: 1px solid #dce3ea !important;
+  background: #fbfcfd !important;
+  border-radius: 12px !important;
+  color: #0f172a !important;
+  font-size: 14px;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.executive-form-shell textarea.ui-form-input,
+.executive-form-shell .p-inputtextarea {
+  min-height: 96px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  resize: vertical;
+}
+
+.executive-form-shell .ui-form-input:focus,
+.executive-form-shell input.ui-form-input:focus,
+.executive-form-shell textarea.ui-form-input:focus,
+.executive-form-shell select.ui-form-input:focus,
+.executive-form-shell .p-inputtext.ui-form-input:focus,
+.executive-form-shell .p-inputtextarea:focus,
+.executive-form-shell .p-inputtextarea.p-focus {
+  outline: none !important;
+  border-color: #6ee7b7 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18) !important;
+}
+
+.executive-form-shell .ui-form-input::placeholder,
+.executive-form-shell .p-inputtext::placeholder,
+.executive-form-shell .p-inputtextarea::placeholder {
+  color: #94a3b8;
+}
+
+/* Dropdowns PrimeReact */
+.executive-form-shell .ui-form-input-control.p-dropdown,
+.executive-form-shell .p-dropdown.ui-form-input-control {
+  min-height: 42px;
+  border: 1px solid #dce3ea !important;
+  background: #fbfcfd !important;
+  border-radius: 12px !important;
+}
+
+.executive-form-shell .ui-form-input-control.p-dropdown .p-dropdown-label {
+  padding: 0.62rem 2.5rem 0.62rem 0.85rem;
+  color: #334155;
+}
+
+.executive-form-shell .ui-form-input-control.p-dropdown .p-dropdown-trigger {
+  color: #64748b;
+}
+
+.executive-form-shell .ui-form-input-control.p-dropdown:not(.p-disabled):hover {
+  border-color: #cbd5e1 !important;
+}
+
+.executive-form-shell .ui-form-input-control.p-dropdown.p-focus {
+  border-color: #6ee7b7 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18) !important;
+  background: #ffffff !important;
+}
+
+/* InputText / textarea PrimeReact solo con ui-form-input-control (p. ej. ticket en Chip) */
+.executive-form-shell .p-inputtext.ui-form-input-control,
+.executive-form-shell .p-inputtextarea.ui-form-input-control {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #dce3ea !important;
+  background: #fbfcfd !important;
+  border-radius: 12px !important;
+}
+
+.executive-form-shell .p-inputtextarea.ui-form-input-control {
+  min-height: 96px;
+}
+
+.executive-form-shell .p-inputtext.ui-form-input-control:focus,
+.executive-form-shell .p-inputtextarea.ui-form-input-control:focus,
+.executive-form-shell .p-inputtextarea.ui-form-input-control.p-focus {
+  border-color: #6ee7b7 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18) !important;
+  background: #ffffff !important;
+}
+
+/* Footer */
+.executive-form-shell .ui-form-actions {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #eef2f6;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Botón principal verde (Bootstrap) */
+.executive-form-shell .btn-primary {
+  background: #0aa64f !important;
+  border-color: #0aa64f !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  min-height: 40px;
+  padding-left: 1.35rem !important;
+  padding-right: 1.35rem !important;
+}
+
+.executive-form-shell .btn-primary:hover:not(:disabled) {
+  background: #098c43 !important;
+  border-color: #098c43 !important;
+}
+
+.executive-form-shell .btn-primary:disabled {
+  opacity: 0.65;
+}
+
+/* Secundario / cancelar */
+.executive-form-shell .btn-outline-secondary {
+  border-color: #dce3ea !important;
+  color: #475569 !important;
+  background: #ffffff !important;
+  font-weight: 600;
+  min-height: 40px;
+}
+
+.executive-form-shell .btn-outline-secondary:hover:not(:disabled) {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Botones PrimeReact en ModemForm */
+.executive-form-shell .modem-form-btn.p-button.p-button-primary,
+.executive-form-shell .modem-form-btn-primary.p-button {
+  background: #0aa64f !important;
+  border-color: #0aa64f !important;
+  color: #ffffff !important;
+}
+
+.executive-form-shell .modem-form-btn-primary.p-button:not(:disabled):hover {
+  background: #098c43 !important;
+  border-color: #098c43 !important;
+}
+
+.executive-form-shell .modem-form-btn-secondary.p-button.p-button-outlined {
+  border-color: #dce3ea !important;
+  color: #475569 !important;
+  background: #ffffff !important;
+}
+
+.executive-form-shell .modem-form-btn-secondary.p-button.p-button-outlined:not(:disabled):hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Panel lateral FormHeader (usuarios): no es la vista previa del teléfono */
+.executive-form-shell aside.ui-form-side:not(.modem-live-preview) {
+  background: linear-gradient(165deg, #ecfdf5 0%, #d1fae5 42%, #a7f3d0 100%) !important;
+  color: #0f172a !important;
+}
+
+.executive-form-shell aside.ui-form-side:not(.modem-live-preview) .ui-form-side-title {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.executive-form-shell aside.ui-form-side:not(.modem-live-preview) .ui-form-side-info {
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 10px;
+  color: #334155;
+}
+
+.executive-form-shell aside.ui-form-side:not(.modem-live-preview) .ui-form-side-info strong {
+  color: #0f172a;
+}
+
+@media (max-width: 900px) {
+  .executive-form-shell .modem-form-main,
+  .executive-form-shell form.ui-form-main {
+    padding: 20px 18px 18px;
+  }
+}

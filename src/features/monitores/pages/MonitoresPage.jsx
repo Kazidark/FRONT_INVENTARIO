@@ -107,6 +107,7 @@ const MonitoresPage = () => {
             dataKey="id_monitor"
             fetchData={getMonitores}
             exportModule="monitores"
+            inportarExcel="monitoresImport"
             toolbarButtonsVariant="bootstrap"
             columns={columns}
             globalFilterFields={[
@@ -126,6 +127,9 @@ const MonitoresPage = () => {
             formSelectedProp="selected"
             dialogHeaderNew="Nuevo monitor"
             dialogHeaderEdit="Editar monitor"
+            dialogSubtitleNew="Registro de monitor"
+            dialogSubtitleEdit="Actualización de monitor"
+            dialogHeaderIcon="pi-desktop"
             toggleAction={toggleAction}
             getToggleMeta={getToggleMeta}
             bulkAction={bulkAction}

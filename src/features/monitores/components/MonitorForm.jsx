@@ -13,6 +13,7 @@ import FormActions from '../../../shared/components/ui/form/FormActions';
 import FormInputWithIcon from '../../../shared/components/ui/form/FormInputWithIcon';
 import DevicePreviewSidebar from '../../../shared/components/ui/form/DevicePreviewSidebar';
 import '../../modems/components/ModemForm.css';
+import '../../../shared/components/ui/form/executive-form-modal.css';
 
 const asArray = (data) => {
   if (Array.isArray(data)) return data;
@@ -142,7 +143,7 @@ const MonitoresForm = ({ selected, onSaved }) => {
 
   return (
     <div className="d-flex justify-content-center py-2">
-      <FormShell className="modem-form-shell">
+      <FormShell className="modem-form-shell executive-form-shell">
         <DevicePreviewSidebar
           deviceType="Monitor"
           centerIcon="pi pi-desktop"
@@ -161,8 +162,8 @@ const MonitoresForm = ({ selected, onSaved }) => {
 
         <form onSubmit={handleSubmit} className="ui-form-main modem-form-main">
           <div className="ui-form-grid">
-            <FormField label="Serie" full>
-              <FormInputWithIcon icon="🔢">
+            <FormField label="Serie" full icon="🔢">
+              <FormInputWithIcon>
                 <input
                   name="serie"
                   value={form.serie}
@@ -174,8 +175,8 @@ const MonitoresForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Marca">
-              <FormInputWithIcon icon="🏷️">
+            <FormField label="Marca" icon="🏷️">
+              <FormInputWithIcon>
                 <input
                   name="marca"
                   value={form.marca}
@@ -186,8 +187,8 @@ const MonitoresForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Modelo">
-              <FormInputWithIcon icon="📺">
+            <FormField label="Modelo" icon="📺">
+              <FormInputWithIcon>
                 <input
                   name="modelo"
                   value={form.modelo}
@@ -198,8 +199,8 @@ const MonitoresForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Estado del Monitor">
-              <FormInputWithIcon icon="⚙️">
+            <FormField label="Estado del Monitor" icon="⚙️">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.estado_monitor !== '' && form.estado_monitor != null ? Number(form.estado_monitor) : null}
                   onChange={(e) => setForm((prev) => ({ ...prev, estado_monitor: e.value ?? '' }))}
@@ -212,8 +213,8 @@ const MonitoresForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Estatus">
-              <FormInputWithIcon icon="📌">
+            <FormField label="Estatus" icon="📌">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.status_monitor !== '' && form.status_monitor != null ? Number(form.status_monitor) : null}
                   onChange={(e) => setForm((prev) => ({ ...prev, status_monitor: e.value ?? '' }))}
@@ -226,8 +227,8 @@ const MonitoresForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Área">
-              <FormInputWithIcon icon="🏢">
+            <FormField label="Área" icon="🏢">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.id_area !== '' && form.id_area != null ? Number(form.id_area) : null}
                   onChange={(e) => setForm((prev) => ({ ...prev, id_area: e.value ?? '' }))}
@@ -240,8 +241,8 @@ const MonitoresForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Colaborador">
-              <FormInputWithIcon icon="👤">
+            <FormField label="Colaborador" icon="👤">
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.usuario !== '' && form.usuario != null ? Number(form.usuario) : null}
                   onChange={(e) => setForm((prev) => ({ ...prev, usuario: e.value ?? '' }))}
@@ -254,8 +255,8 @@ const MonitoresForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Ubicación">
-              <FormInputWithIcon icon="📍">
+            <FormField label="Ubicación" icon="📍">
+              <FormInputWithIcon>
                 <input
                   name="ubicacion"
                   value={form.ubicacion}
@@ -265,8 +266,8 @@ const MonitoresForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Anexo" full>
-              <FormInputWithIcon icon="☎️">
+            <FormField label="Anexo" full icon="☎️">
+              <FormInputWithIcon>
                 <input
                   name="anexo"
                   value={form.anexo}
@@ -276,8 +277,8 @@ const MonitoresForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Observaciones" full>
-              <FormInputWithIcon icon="📝">
+            <FormField label="Observaciones" full icon="📝">
+              <FormInputWithIcon>
                 <textarea
                   name="observaciones"
                   value={form.observaciones}

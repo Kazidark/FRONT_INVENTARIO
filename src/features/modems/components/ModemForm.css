@@ -1,9 +1,9 @@
 .modem-form-shell {
   max-width: 1240px;
   grid-template-columns: 340px minmax(0, 1fr);
-  border: 1px solid #e5e7eb;
-  border-radius: 20px;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
 }
 
 .modem-form-shell .ui-form-side {
@@ -23,45 +23,53 @@
 
 .modem-form-main {
   background: #ffffff;
-  padding: 28px 24px;
+  padding: 26px 24px 22px;
+}
+
+.modem-form-main .ui-form-grid {
+  gap: 16px 18px;
+}
+
+.modem-form-main .ui-form-field {
+  gap: 7px;
 }
 
 .modem-form-main .ui-form-label {
   color: #334155;
   font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 2px;
 }
 
 .modem-form-main .ui-form-input-wrap {
   border-radius: 12px;
 }
 
-.modem-form-main .ui-form-input-icon {
-  color: #64748b;
-  z-index: 2;
-}
-
 .modem-form-main .ui-form-input {
+  min-height: 42px;
   border-radius: 12px;
-  border: 1px solid #dbe2ea;
-  background: #f8fafc;
+  border: 1px solid #d9e1e8;
+  background: #fbfcfd;
   transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
 .modem-form-main .ui-form-input:focus {
-  border-color: #99f6e4;
+  border-color: #8edebf;
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14);
 }
 
 .modem-form-main .ui-form-input-control.p-dropdown {
   width: 100%;
+  min-height: 42px;
   border-radius: 12px;
-  border: 1px solid #dbe2ea;
-  background: #f8fafc;
+  border: 1px solid #d9e1e8;
+  background: #fbfcfd;
 }
 
 .modem-form-main .ui-form-input-control.p-dropdown .p-dropdown-label {
-  padding: 0.65rem 2.5rem 0.65rem 2.35rem;
+  padding: 0.62rem 2.5rem 0.62rem 0.85rem;
+  color: #334155;
 }
 
 .modem-form-main .ui-form-input-control.p-dropdown .p-dropdown-trigger {
@@ -70,29 +78,31 @@
 }
 
 .modem-form-main .ui-form-input-control.p-dropdown:not(.p-disabled):hover {
-  border-color: #cbd5e1;
+  border-color: #c7d2de;
 }
 
 .modem-form-main .ui-form-input-control.p-dropdown.p-focus {
-  border-color: #99f6e4;
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+  border-color: #8edebf;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14);
   background: #ffffff;
 }
 
 .modem-form-btn {
   border-radius: 999px !important;
-  padding: 0.5rem 1.1rem !important;
+  min-height: 38px;
+  padding: 0.48rem 1.1rem !important;
   font-weight: 600 !important;
+  letter-spacing: 0.01em;
 }
 
 .modem-form-btn-primary {
-  background: #0f766e !important;
-  border-color: #0f766e !important;
+  background: #138a72 !important;
+  border-color: #138a72 !important;
 }
 
 .modem-form-btn-primary:hover {
-  background: #115e59 !important;
-  border-color: #115e59 !important;
+  background: #0f7a64 !important;
+  border-color: #0f7a64 !important;
 }
 
 .modem-form-btn-secondary {
@@ -114,18 +124,18 @@
   padding: 14px 10px 20px;
   overflow: hidden;
   background:
-    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.22), transparent 48%),
-    radial-gradient(circle at 14% 78%, rgba(16, 185, 129, 0.16), transparent 34%),
-    radial-gradient(circle at 84% 20%, rgba(14, 165, 233, 0.16), transparent 36%),
-    #f3f4f6;
+    radial-gradient(circle at 50% 50%, rgba(148, 163, 184, 0.12), transparent 50%),
+    radial-gradient(circle at 14% 78%, rgba(16, 185, 129, 0.08), transparent 35%),
+    radial-gradient(circle at 84% 20%, rgba(59, 130, 246, 0.08), transparent 35%),
+    #f3f6f8;
   border: none;
 }
 
 .modem-live-preview.is-empty {
   background:
-    radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.12), transparent 62%),
-    radial-gradient(circle at 18% 84%, rgba(16, 185, 129, 0.14), transparent 42%),
-    radial-gradient(circle at 86% 18%, rgba(236, 72, 153, 0.12), transparent 42%),
+    radial-gradient(circle at 50% 50%, rgba(148, 163, 184, 0.1), transparent 62%),
+    radial-gradient(circle at 18% 84%, rgba(16, 185, 129, 0.08), transparent 42%),
+    radial-gradient(circle at 86% 18%, rgba(14, 165, 233, 0.07), transparent 42%),
     #f8fafc;
 }
 
@@ -163,7 +173,7 @@
   min-height: 272px;
   transform: translate(-50%, -50%);
   border-radius: 24px;
-  border: 11px solid #1e295b;
+  border: 9px solid #24366b;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -172,8 +182,8 @@
   text-align: center;
   color: #ffffff;
   padding: 12px 10px;
-  box-shadow: 0 14px 30px rgba(30, 41, 91, 0.34);
-  background: linear-gradient(160deg, #4f46e5, #9333ea 58%, #ec4899 92%);
+  box-shadow: 0 12px 24px rgba(30, 41, 91, 0.26);
+  background: linear-gradient(165deg, #4f46e5, #6d4fe0 55%, #8b5cf6 100%);
   animation: modemCoreFloat 4.8s ease-in-out infinite;
 }
 
@@ -213,11 +223,11 @@
   width: 130px;
   border-radius: 14px;
   padding: 9px 10px;
-  color: #ffffff;
+  color: #f8fafc;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  box-shadow: 0 12px 20px rgba(15, 23, 42, 0.19);
+  box-shadow: 0 9px 16px rgba(15, 23, 42, 0.14);
   transform: translate3d(0, 0, 0);
   opacity: 0.96;
   animation: cardIn 0.35s ease both;
@@ -258,13 +268,13 @@
 .modem-preview-floating-card[data-card='imei'] {
   top: 26px;
   right: 8px;
-  background: linear-gradient(145deg, #0ea5e9, #2563eb);
+  background: linear-gradient(145deg, #38bdf8, #3b82f6);
 }
 
 .modem-preview-floating-card[data-card='marca'] {
   left: 0;
   top: 90px;
-  background: linear-gradient(145deg, #d946ef, #7c3aed);
+  background: linear-gradient(145deg, #a78bfa, #8b5cf6);
 }
 
 .modem-preview-floating-card[data-card='modelo'] {
@@ -273,7 +283,7 @@
   width: 124px;
   padding: 9px 10px;
   z-index: 5;
-  background: linear-gradient(145deg, #f59e0b, #f97316);
+  background: linear-gradient(145deg, #fbbf24, #f59e0b);
 }
 
 .modem-preview-floating-card[data-card='estadoModem'] {
@@ -282,7 +292,7 @@
   width: 124px;
   padding: 9px 10px;
   z-index: 5;
-  background: linear-gradient(145deg, #10b981, #059669);
+  background: linear-gradient(145deg, #34d399, #10b981);
 }
 
 .modem-preview-floating-card[data-card='estadoEquipo'] {
@@ -291,19 +301,19 @@
   width: 122px;
   padding: 8px 9px;
   z-index: 6;
-  background: linear-gradient(145deg, #f43f5e, #ec4899);
+  background: linear-gradient(145deg, #fb7185, #f472b6);
 }
 
 .modem-preview-floating-card[data-card='area'] {
   left: 28px;
   bottom: 104px;
-  background: linear-gradient(145deg, #6366f1, #3b82f6);
+  background: linear-gradient(145deg, #818cf8, #60a5fa);
 }
 
 .modem-preview-floating-card[data-card='usuario'] {
   right: 14px;
   bottom: 34px;
-  background: linear-gradient(145deg, #a855f7, #d946ef);
+  background: linear-gradient(145deg, #c084fc, #e879f9);
 }
 
 .modem-preview-floating-card[data-card='modelo'] span,
@@ -334,8 +344,8 @@
   justify-content: center;
   gap: 8px;
   color: #ffffff;
-  background: linear-gradient(130deg, #14b8a6, #10b981);
-  box-shadow: 0 9px 18px rgba(6, 95, 70, 0.26);
+  background: linear-gradient(130deg, #2dd4bf, #34d399);
+  box-shadow: 0 8px 14px rgba(6, 95, 70, 0.2);
   animation: chipFloat 3.6s ease-in-out infinite;
 }
 

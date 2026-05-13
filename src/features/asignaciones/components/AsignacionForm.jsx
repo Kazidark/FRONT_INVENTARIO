@@ -79,8 +79,8 @@ const AsignacionForm = ({ onSaved }) => {
 
         <form onSubmit={handleSubmit} className="ui-form-main">
           <div className="ui-form-grid">
-            <FormField label="Colaborador">
-              <FormInputWithIcon icon="👤">
+            <FormField label="Colaborador" icon="👤">
+              <FormInputWithIcon>
                 <select
                   name="id_colaborador"
                   value={form.id_colaborador}
@@ -98,8 +98,8 @@ const AsignacionForm = ({ onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Área">
-              <FormInputWithIcon icon="🏢">
+            <FormField label="Área" icon="🏢">
+              <FormInputWithIcon>
                 <select
                   name="id_area"
                   value={form.id_area}
@@ -117,8 +117,8 @@ const AsignacionForm = ({ onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Módem">
-              <FormInputWithIcon icon="📡">
+            <FormField label="Módem" icon="📡">
+              <FormInputWithIcon>
                 <select
                   name="id_modem"
                   value={form.id_modem}
@@ -135,8 +135,8 @@ const AsignacionForm = ({ onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Chip">
-              <FormInputWithIcon icon="📶">
+            <FormField label="Chip" icon="📶">
+              <FormInputWithIcon>
                 <select
                   name="id_chip"
                   value={form.id_chip}

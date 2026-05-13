@@ -1,4 +1,6 @@
 const ColaboradoresTable = ({ colaboradores, selected, onSelect }) => {
+  const isActive = (value) => value === true || value === 1 || value === '1';
+
   return (
     <table style={styles.table}>
       <thead>
@@ -32,11 +34,11 @@ const ColaboradoresTable = ({ colaboradores, selected, onSelect }) => {
               <span
                 style={{
                   ...styles.badge,
-                  background: c.activo ? '#e6f4ea' : '#fdecea',
-                  color: c.activo ? '#1e7e34' : '#c82333'
+                  background: isActive(c.activo) ? '#e6f4ea' : '#fdecea',
+                  color: isActive(c.activo) ? '#1e7e34' : '#c82333'
                 }}
               >
-                {c.activo ? 'No' : 'Si'}
+                {isActive(c.activo) ? 'No' : 'Si'}
               </span>
             </td>
           </tr>

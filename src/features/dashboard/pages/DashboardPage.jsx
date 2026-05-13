@@ -11,7 +11,74 @@ import { getMonitores } from '../../../services/api/monitores.api';
 import { getColaboradores } from '../../../services/api/colaboradores.api';
 import { getAsignaciones } from '../../../services/api/asignaciones.api';
 
-const PALETTE = ['#6366f1', '#06b6d4', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+const PALETTE = ['#6366f1', '#38bdf8', '#f59e0b', '#fb923c', '#a78bfa', '#f472b6', '#0ea5e9', '#c084fc'];
+
+/** Rebanadas pie / dona: índigo, cielo, ámbar, coral, rosa, violeta (poco verde) */
+const DASH_PIE_COLORS = ['#818cf8', '#38bdf8', '#fbbf24', '#fb923c', '#f472b6', '#a78bfa', '#22d3bf', '#fda4af'];
+
+/** Barras por área: pasteles que combinan entre sí */
+const DASH_AREA_BAR_COLORS = ['#93c5fd', '#a5b4fc', '#c4b5fd', '#fbcfe8', '#fde68a', '#7dd3fc', '#fdba74', '#bae6fd'];
+
+const CHART_DURATION = 1500;
+const CHART_EASE = 'easeOutCubic';
+
+/** Barras verticales: crecen desde la base (eje Y = 0) */
+const barGrowVertical = {
+  animation: { duration: CHART_DURATION, easing: CHART_EASE },
+  animations: {
+    y: {
+      type: 'number',
+      properties: ['y', 'height', 'base'],
+      from: (ctx) => {
+        if (ctx.type === 'data' && ctx.chart?.scales?.y) {
+          return ctx.chart.scales.y.getPixelForValue(0);
+        }
+      },
+    },
+  },
+};
+
+/** Barras horizontales (indexAxis y): se alargan desde 0 en X */
+const barGrowHorizontal = {
+  animation: { duration: CHART_DURATION, easing: CHART_EASE },
+  animations: {
+    x: {
+      type: 'number',
+      properties: ['x', 'width'],
+      from: (ctx) => {
+        if (ctx.type === 'data' && ctx.chart?.scales?.x) {
+          return ctx.chart.scales.x.getPixelForValue(0);
+        }
+      },
+    },
+  },
+};
+
+/** Línea: puntos suben desde la base */
+const lineGrowFromBase = {
+  animation: { duration: CHART_DURATION, easing: CHART_EASE },
+  animations: {
+    y: {
+      type: 'number',
+      properties: ['y'],
+      from: (ctx) => {
+        if (ctx.type === 'data' && ctx.chart?.scales?.y) {
+          return ctx.chart.scales.y.getPixelForValue(0);
+        }
+      },
+    },
+  },
+};
+
+/** Pie: giro + escala (no sobrescribir solo con duration o se pierde el arco) */
+const pieMotion = {
+  animation: {
+    duration: CHART_DURATION,
+    easing: CHART_EASE,
+    animateRotate: true,
+    animateScale: true,
+  },
+};
 
 const MODULES = [
   { key: 'modems',        label: 'Módems',        icon: 'pi-wifi',       tone: 'success',   fetcher: getModems,        activeField: 'activo' },
@@ -33,10 +100,51 @@ const countByField = (items, field) => {
   return map;
 };
 
+/** Cuenta animada de 0 → target (entero); al terminar se queda en target. */
+function useCountUp(target, { duration = 1000, enabled = true } = {}) {
+  const safe = typeof target === 'number' && Number.isFinite(target) ? Math.round(target) : 0;
+  const [n, setN] = useState(() => (enabled ? 0 : safe));
+
+  useEffect(() => {
+    if (!enabled) {
+      setN(safe);
+      return;
+    }
+    let raf = 0;
+    let cancelled = false;
+    const t0 = performance.now();
+
+    const tick = (now) => {
+      if (cancelled) return;
+      const t = Math.min(1, (now - t0) / duration);
+      const eased = 1 - (1 - t) ** 3;
+      setN(Math.round(safe * eased));
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setN(safe);
+      }
+    };
+
+    setN(0);
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+    };
+  }, [safe, duration, enabled]);
+
+  return n;
+}
+
 const ChartCard = ({ title, children, className = '' }) => (
-  <div className={`card border-0 shadow-sm h-100 ${className}`}>
-    <div className="card-body">
-      <h6 className="fw-semibold text-secondary mb-3" style={{ fontSize: '.85rem', letterSpacing: 0.3 }}>
+  <div className={`card border-0 shadow-sm h-100 dashboard-chart-card ${className}`}>
+    <div className="card-body py-2 px-2 pt-2 d-flex flex-column" style={{ minHeight: 0 }}>
+      <h6
+        className="fw-semibold text-secondary mb-1 text-truncate"
+        style={{ fontSize: '.75rem', letterSpacing: 0.2 }}
+        title={title}
+      >
         {title}
       </h6>
       {children}
@@ -45,86 +153,117 @@ const ChartCard = ({ title, children, className = '' }) => (
 );
 
 const SkeletonChart = () => (
-  <div className="p-3">
-    <Skeleton width="40%" height="1rem" className="mb-3" />
-    <Skeleton height="14rem" />
+  <div className="p-2">
+    <Skeleton width="45%" height="0.75rem" className="mb-2" />
+    <Skeleton height="180px" borderRadius="8px" />
   </div>
 );
 
-const KpiSparkCard = ({
-  title,
+/** Barras decorativas animadas cuando no hay datos (misma sensación que gráficos que suben) */
+function DashboardEmptyBars({ message, variant = 'trend' }) {
+  const heights = variant === 'trend' ? [36, 54, 42, 62, 48, 38] : [34, 52, 44, 58, 50, 40];
+  return (
+    <div
+      className={`dashboard-empty-bars dashboard-empty-bars--${variant} d-flex flex-column align-items-center justify-content-center w-100 h-100`}
+    >
+      <div className="dashboard-empty-bars__inner d-flex align-items-end justify-content-center gap-2 w-100 px-3">
+        {heights.map((px, i) => (
+          <div
+            key={i}
+            className="dashboard-empty-bars__col"
+            style={{ height: px, ['--dash-i']: i }}
+            aria-hidden="true"
+          />
+        ))}
+      </div>
+      <p className="text-secondary text-center small mb-0 mt-2 px-2">{message}</p>
+    </div>
+  );
+}
+
+/** KPI estilo “Analytics overview”: icono circular arriba, métrica grande, etiqueta, tendencia, barra de color */
+const KpiStatCard = ({
+  iconClass,
+  label,
   value,
+  displayValue,
+  accentLine = '#3b82f6',
+  accentIcon = '#2563eb',
+  iconBg = '#eff6ff',
   delta,
   deltaUp = true,
-  color = '#6366f1',
-  points = []
+  showDelta = false,
+  elevated = false,
+  animateValue = true,
 }) => {
-  const data = {
-    labels: points.map((_, idx) => idx + 1),
-    datasets: [
-      {
-        data: points,
-        borderColor: color,
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.45,
-        fill: false,
-        clip: 10,
-      },
-    ],
-  };
+  const isNumeric = typeof value === 'number' && Number.isFinite(value);
+  const targetInt = isNumeric ? Math.round(value) : 0;
+  const count = useCountUp(targetInt, {
+    duration: 1000,
+    enabled: animateValue && displayValue == null && isNumeric,
+  });
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    layout: {
-      padding: { top: 4, right: 8, bottom: 4, left: 8 },
-    },
-    plugins: { legend: { display: false }, tooltip: { enabled: false } },
-    scales: {
-      x: { display: false, grid: { display: false } },
-      y: { display: false, grid: { display: false } },
-    },
-  };
+  const shown =
+    displayValue ??
+    (isNumeric ? count.toLocaleString('es-MX') : value);
 
   return (
     <div
-      className="card h-100 border-0"
-      style={{
-        borderRadius: 10,
-        background: '#ffffff',
-        boxShadow: '0 6px 18px rgba(15, 23, 42, 0.08)',
-      }}
+      className={`dashboard-kpi-card--analytics h-100 border-0 overflow-hidden ${
+        elevated ? 'dashboard-kpi-card--elevated' : ''
+      }`}
     >
-      <div className="card-body d-flex align-items-center justify-content-between py-3 px-3">
-        <div>
-          <div
-            className="text-secondary fw-semibold"
-            style={{ fontSize: '.9rem', letterSpacing: '.01em' }}
-          >
-            {title}
-          </div>
-          <div className="fw-bold mt-1" style={{ fontSize: '2rem', lineHeight: 1 }}>{value}</div>
-          <div
-            className={`fw-semibold mt-1 ${deltaUp ? 'text-success' : 'text-danger'}`}
-            style={{ fontSize: '.9rem' }}
-          >
-            {delta}
-            <span className="ms-1">{deltaUp ? '↑' : '↓'}</span>
-          </div>
+      <div
+        className="d-flex flex-column align-items-center text-center px-3"
+        style={{ paddingTop: '1.35rem', paddingBottom: '0.65rem', minHeight: 168 }}
+      >
+        <div
+          className="d-flex align-items-center justify-content-center flex-shrink-0"
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            backgroundColor: iconBg,
+            color: accentIcon,
+            fontSize: '1.35rem',
+            boxShadow: `0 0 0 6px ${iconBg}66`,
+          }}
+          aria-hidden="true"
+        >
+          <i className={iconClass} />
         </div>
         <div
+          className="fw-bold text-dark mt-3"
           style={{
-            width: 112,
-            height: 48,
-            minWidth: 112,
-            overflow: 'hidden',
-            borderRadius: 8,
+            fontSize: 'clamp(1.75rem, 3.2vw, 2.35rem)',
+            lineHeight: 1.05,
+            letterSpacing: '-0.03em',
           }}
         >
-          <Chart type="line" data={data} options={options} />
+          {shown}
         </div>
+        <div
+          className="text-secondary mt-2 px-1"
+          style={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.25 }}
+        >
+          {label}
+        </div>
+        {showDelta && delta != null && delta !== '' ? (
+          <div
+            className="mt-2 fw-semibold"
+            style={{
+              fontSize: '0.88rem',
+              color: deltaUp ? '#16a34a' : '#dc2626',
+              letterSpacing: '0.01em',
+            }}
+          >
+            {deltaUp ? '▲' : '▼'} {delta}
+          </div>
+        ) : (
+          <div className="mt-2" style={{ height: '1.25rem' }} aria-hidden />
+        )}
       </div>
+      <div style={{ height: 4, backgroundColor: accentLine }} aria-hidden="true" />
     </div>
   );
 };
@@ -170,59 +309,17 @@ const DashboardPage = () => {
     ['modems', 'chips', 'celulares', 'pcs', 'tablets', 'monitores'].includes(s.key)
   );
 
-  /* ── Bar: Total de inventario por módulo ── */
-  const barData = useMemo(() => ({
-    labels: equipmentModules.map((s) => s.label),
-    datasets: [
-      {
-        label: 'Activos',
-        data: equipmentModules.map((s) => s.activos),
-        backgroundColor: '#10b981',
-        borderRadius: 6,
-        barPercentage: 0.6,
-      },
-      {
-        label: 'Inactivos',
-        data: equipmentModules.map((s) => s.inactivos),
-        backgroundColor: '#ef4444',
-        borderRadius: 6,
-        barPercentage: 0.6,
-      },
-    ],
-  }), [equipmentModules]);
-
-  const barOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } },
-    },
-    scales: {
-      x: { grid: { display: false } },
-      y: { beginAtZero: true, ticks: { stepSize: 1 } },
-    },
-  };
-
   /* ── Doughnut: Distribución general de equipos ── */
   const doughnutData = useMemo(() => ({
     labels: equipmentModules.map((s) => s.label),
     datasets: [{
       data: equipmentModules.map((s) => s.total),
-      backgroundColor: PALETTE.slice(0, equipmentModules.length),
+      backgroundColor: equipmentModules.map((_, i) => DASH_PIE_COLORS[i % DASH_PIE_COLORS.length]),
       hoverOffset: 8,
       borderWidth: 2,
       borderColor: '#fff',
     }],
   }), [equipmentModules]);
-
-  const doughnutOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '60%',
-    plugins: {
-      legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14, font: { size: 12 } } },
-    },
-  };
 
   /* ── Polar: Activos vs Inactivos global ── */
   const globalActivos = equipmentModules.reduce((sum, s) => sum + s.activos, 0);
@@ -232,19 +329,23 @@ const DashboardPage = () => {
     labels: ['Activos', 'Inactivos'],
     datasets: [{
       data: [globalActivos, globalInactivos],
-      backgroundColor: ['rgba(16, 185, 129, 0.7)', 'rgba(239, 68, 68, 0.7)'],
-      borderColor: ['#10b981', '#ef4444'],
+      backgroundColor: ['rgba(99, 102, 241, 0.65)', 'rgba(251, 146, 60, 0.65)'],
+      borderColor: ['#6366f1', '#fb923c'],
       borderWidth: 2,
     }],
   }), [globalActivos, globalInactivos]);
 
-  const pieOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14 } },
-    },
-  };
+  const pieOptions = useMemo(
+    () => ({
+      ...pieMotion,
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 4, font: { size: 10 } } },
+      },
+    }),
+    []
+  );
 
   /* ── Horizontal Bar: Equipos por Área (combinando módulos con campo nombre_area/area) ── */
   const areaDistribution = useMemo(() => {
@@ -263,25 +364,12 @@ const DashboardPage = () => {
       datasets: [{
         label: 'Equipos',
         data: sorted.map(([, v]) => v),
-        backgroundColor: '#6366f1',
+        backgroundColor: sorted.map((_, i) => DASH_AREA_BAR_COLORS[i % DASH_AREA_BAR_COLORS.length]),
         borderRadius: 6,
         barPercentage: 0.6,
       }],
     };
   }, [equipmentModules]);
-
-  const horizontalBarOptions = {
-    indexAxis: 'y',
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-    },
-    scales: {
-      x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { display: false } },
-      y: { grid: { display: false } },
-    },
-  };
 
   /* ── Bar: Chips por operador ── */
   const chipsByOperador = useMemo(() => {
@@ -336,54 +424,108 @@ const DashboardPage = () => {
         label: 'Asignaciones',
         data: sorted.map(([, v]) => v),
         borderColor: '#6366f1',
-        backgroundColor: 'rgba(99, 102, 241, 0.15)',
+        backgroundColor: 'rgba(99, 102, 241, 0.12)',
         fill: true,
         tension: 0.4,
-        pointRadius: 4,
-        pointBackgroundColor: '#6366f1',
+        pointRadius: 3,
+        pointHoverRadius: 4,
+        pointBackgroundColor: '#818cf8',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 1,
       }],
     };
   }, [data.asignaciones]);
 
-  const lineOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-    },
-    scales: {
-      x: { grid: { display: false } },
-      y: { beginAtZero: true, ticks: { stepSize: 1 } },
-    },
-  };
+  const moduleBarData = useMemo(
+    () => ({
+      labels: equipmentModules.map((s) => s.label),
+      datasets: [
+        {
+          label: 'Activos',
+          data: equipmentModules.map((s) => s.activos),
+          backgroundColor: '#6366f1',
+          borderRadius: 6,
+        },
+        {
+          label: 'Inactivos',
+          data: equipmentModules.map((s) => s.inactivos),
+          backgroundColor: '#fb923c',
+          borderRadius: 6,
+        },
+      ],
+    }),
+    [equipmentModules]
+  );
 
-  const simpleBarOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { display: false } },
-      y: { beginAtZero: true, ticks: { stepSize: 1 } },
-    },
-  };
+  const moduleBarChartOptions = useMemo(
+    () => ({
+      ...barGrowHorizontal,
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      layout: { padding: { left: 0, right: 8, top: 4, bottom: 4 } },
+      plugins: {
+        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 6, font: { size: 10 } } },
+      },
+      scales: {
+        x: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { display: false } },
+        y: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      },
+    }),
+    []
+  );
+
+  const lineOptions = useMemo(
+    () => ({
+      ...lineGrowFromBase,
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { top: 4, right: 4, bottom: 0, left: 2 } },
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 0 } },
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } },
+      },
+    }),
+    []
+  );
+
+  const simpleBarOptions = useMemo(
+    () => ({
+      ...barGrowVertical,
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } }, grid: { display: false } },
+      },
+    }),
+    []
+  );
 
   if (loading) {
     return (
-      <section>
-        <div className="mb-4">
-          <h1 className="h4 fw-bold mb-1">Dashboard</h1>
-          <p className="text-secondary mb-0">Cargando datos del inventario...</p>
+      <section className="dashboard-fit">
+        <div className="dashboard-fit__head">
+          <h1 className="h5 fw-bold mb-0">Dashboard</h1>
+          <p className="text-secondary small mb-0">Cargando datos del inventario…</p>
         </div>
-        <div className="row g-3 mb-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="col-12 col-sm-6 col-xl-3">
-              <Skeleton height="5rem" borderRadius="0.75rem" />
-            </div>
+        <div className="dashboard-fit__kpis">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} height="188px" borderRadius="18px" className="w-100" />
           ))}
         </div>
-        <div className="row g-3">
-          <div className="col-12 col-lg-8"><SkeletonChart /></div>
-          <div className="col-12 col-lg-4"><SkeletonChart /></div>
+        <div className="dashboard-fit__charts">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={`sk-${i}`} className="dashboard-fit__chart">
+              <div className="card border-0 shadow-sm h-100 dashboard-chart-card">
+                <SkeletonChart />
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     );
@@ -392,137 +534,129 @@ const DashboardPage = () => {
   const totalEquipos = equipmentModules.reduce((s, m) => s + m.total, 0);
   const kpiCards = [
     {
-      title: 'Inventario',
+      iconClass: 'pi pi-box',
+      label: 'Total inventario',
       value: totalEquipos,
       delta: `+${Math.round((globalActivos / Math.max(totalEquipos, 1)) * 100)}%`,
       deltaUp: true,
-      color: '#7c83ff',
-      points: [18, 22, 20, 27, 35, 32, 40, 44]
+      showDelta: true,
+      accentLine: '#3b82f6',
+      accentIcon: '#2563eb',
+      iconBg: '#eff6ff',
     },
     {
-      title: 'Activos',
+      iconClass: 'pi pi-bolt',
+      label: 'Equipos activos',
       value: globalActivos,
       delta: `+${Math.round((globalActivos / Math.max(globalActivos + globalInactivos, 1)) * 100)}%`,
       deltaUp: true,
-      color: '#10b981',
-      points: [30, 39, 36, 28, 34, 26, 41, 46]
+      showDelta: true,
+      elevated: true,
+      accentLine: '#10b981',
+      accentIcon: '#059669',
+      iconBg: '#d1fae5',
     },
     {
-      title: 'Asignaciones',
+      iconClass: 'pi pi-link',
+      label: 'Asignaciones',
       value: data.asignaciones?.length || 0,
-      delta: '+24%',
-      deltaUp: false,
-      color: '#ec4899',
-      points: [45, 42, 38, 40, 35, 36, 31, 24]
+      showDelta: false,
+      accentLine: '#8b5cf6',
+      accentIcon: '#7c3aed',
+      iconBg: '#ede9fe',
     },
     {
-      title: 'Stock',
+      iconClass: 'pi pi-chart-line',
+      label: 'Stock inactivo',
       value: globalInactivos,
-      delta: '+30%',
-      deltaUp: true,
-      color: '#f59e0b',
-      points: [16, 24, 22, 29, 27, 33, 28, 31]
-    }
+      showDelta: globalInactivos > 0,
+      delta:
+        globalInactivos > 0
+          ? `${Math.round((globalInactivos / Math.max(totalEquipos, 1)) * 100)}% del total`
+          : '',
+      deltaUp: false,
+      accentLine: '#f59e0b',
+      accentIcon: '#d97706',
+      iconBg: '#ffedd5',
+    },
   ];
 
   return (
-    <section>
-      <div className="mb-4">
-        <h1 className="h4 fw-bold mb-1">Dashboard</h1>
-        <p className="text-secondary mb-0">Resumen general del inventario &mdash; <strong>{totalEquipos}</strong> equipos registrados.</p>
+    <section className="dashboard-fit">
+      <div className="dashboard-fit__head">
+        <h1 className="h5 fw-bold mb-0">Dashboard</h1>
+        <p className="text-secondary small mb-0">
+          Resumen del inventario — <strong>{totalEquipos}</strong> equipos
+        </p>
       </div>
 
-      {/* ─── KPI SPARK CARDS ─── */}
-      <div
-        className="mb-4"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '0.9rem',
-        }}
-      >
+      <div className="dashboard-fit__kpis">
         {kpiCards.map((card) => (
-          <div key={card.title}>
-            <KpiSparkCard {...card} />
-          </div>
+          <KpiStatCard key={card.label} {...card} />
         ))}
       </div>
 
-      {/* ─── ROW 1: Bar + Doughnut ─── */}
-      <div className="row g-3 mb-4">
-        <div className="col-12 col-lg-8">
-          <ChartCard title="Inventario por módulo (Activos vs Inactivos)">
-            <div style={{ height: 320 }}>
-              <Chart type="bar" data={barData} options={barOptions} />
+      <div className="dashboard-fit__charts">
+        <div className="dashboard-fit__chart">
+          <ChartCard title="Línea de tiempo de asignaciones">
+            <div className="dashboard-chart-slot">
+              {asignacionesTrend.labels.length > 0 ? (
+                <Chart
+                  key={asignacionesTrend.labels.join(',')}
+                  type="line"
+                  data={asignacionesTrend}
+                  options={lineOptions}
+                />
+              ) : (
+                <DashboardEmptyBars message="Sin datos de tendencia" variant="trend" />
+              )}
             </div>
           </ChartCard>
         </div>
-        <div className="col-12 col-lg-4">
-          <ChartCard title="Distribución general de equipos">
-            <div style={{ height: 320 }}>
-              <Chart type="doughnut" data={doughnutData} options={doughnutOptions} />
+
+        <div className="dashboard-fit__chart">
+          <ChartCard title="Resultados por módulo (Activos/Inactivos)">
+            <div className="dashboard-chart-slot">
+              <Chart
+                key={equipmentModules.map((s) => `${s.key}-${s.activos}-${s.inactivos}`).join('|')}
+                type="bar"
+                data={moduleBarData}
+                options={moduleBarChartOptions}
+              />
+            </div>
+          </ChartCard>
+        </div>
+
+        <div className="dashboard-fit__chart">
+          <ChartCard title="Entregas por área">
+            <div className="dashboard-chart-slot">
+              {areaDistribution.labels.length > 0 ? (
+                <Chart
+                  key={areaDistribution.labels.join(',')}
+                  type="bar"
+                  data={areaDistribution}
+                  options={simpleBarOptions}
+                />
+              ) : (
+                <DashboardEmptyBars message="Sin datos de áreas" variant="area" />
+              )}
+            </div>
+          </ChartCard>
+        </div>
+
+        <div className="dashboard-fit__chart">
+          <ChartCard title="Distribución general de inventario">
+            <div className="dashboard-chart-slot">
+              <Chart
+                key={doughnutData.labels.join(',')}
+                type="pie"
+                data={doughnutData}
+                options={pieOptions}
+              />
             </div>
           </ChartCard>
         </div>
       </div>
-
-      {/* ─── ROW 2: Pie global + Equipos por Área ─── */}
-      <div className="row g-3 mb-4">
-        <div className="col-12 col-lg-4">
-          <ChartCard title="Estado global: Activos vs Inactivos">
-            <div style={{ height: 300 }}>
-              <Chart type="pie" data={polarData} options={pieOptions} />
-            </div>
-          </ChartCard>
-        </div>
-        <div className="col-12 col-lg-8">
-          <ChartCard title="Top 10 — Equipos por Área">
-            <div style={{ height: 300 }}>
-              {areaDistribution.labels.length > 0
-                ? <Chart type="bar" data={areaDistribution} options={horizontalBarOptions} />
-                : <p className="text-secondary text-center mt-5">Sin datos de áreas disponibles</p>
-              }
-            </div>
-          </ChartCard>
-        </div>
-      </div>
-
-      {/* ─── ROW 3: Chips por operador + PCs por tipo ─── */}
-      <div className="row g-3 mb-4">
-        <div className="col-12 col-lg-6">
-          <ChartCard title="Chips por Operador">
-            <div style={{ height: 280 }}>
-              {chipsByOperador.labels.length > 0
-                ? <Chart type="bar" data={chipsByOperador} options={simpleBarOptions} />
-                : <p className="text-secondary text-center mt-5">Sin datos de operadores</p>
-              }
-            </div>
-          </ChartCard>
-        </div>
-        <div className="col-12 col-lg-6">
-          <ChartCard title="PCs / Laptops por Tipo de equipo">
-            <div style={{ height: 280 }}>
-              {pcsByTipo.labels.length > 0
-                ? <Chart type="doughnut" data={pcsByTipo} options={doughnutOptions} />
-                : <p className="text-secondary text-center mt-5">Sin datos de tipos</p>
-              }
-            </div>
-          </ChartCard>
-        </div>
-      </div>
-
-      {/* ─── ROW 4: Tendencia asignaciones ─── */}
-      {asignacionesTrend.labels.length > 0 && (
-        <div className="row g-3 mb-4">
-          <div className="col-12">
-            <ChartCard title="Tendencia de Asignaciones por mes">
-              <div style={{ height: 280 }}>
-                <Chart type="line" data={asignacionesTrend} options={lineOptions} />
-              </div>
-            </ChartCard>
-          </div>
-        </div>
-      )}
     </section>
   );
 };

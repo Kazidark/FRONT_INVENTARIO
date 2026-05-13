@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createUsuario, updateUsuario } from '../../../services/api/usuarios.api';
+import '../../modems/components/ModemForm.css';
+import '../../../shared/components/ui/form/executive-form-modal.css';
 import FormShell from '../../../shared/components/ui/form/FormShell';
 import FormHeader from '../../../shared/components/ui/form/FormHeader';
 import FormField from '../../../shared/components/ui/form/FormField';
@@ -23,7 +25,7 @@ const UsuarioForm = ({ selected, onSaved }) => {
         usuario: selected.usuario || '',
         email: selected.email || '',
         password: '',
-        rol: selected.rol || 'Usuario'
+        rol: selected.rol || selected.role || 'Usuario'
       });
     } else {
       setForm(emptyForm);
@@ -36,11 +38,13 @@ const UsuarioForm = ({ selected, onSaved }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    // console.log(form)
 
     try {
-      selected
-        ? await updateUsuario(selected.id_usuario, form)
-        : await createUsuario(form);
+      //  console.log(form)
+      await createUsuario(form);
+      // selecte
+        // ? await updateUsuario(selected.id_usuario, form)
       onSaved();
     } finally {
       setLoading(false);
@@ -49,7 +53,7 @@ const UsuarioForm = ({ selected, onSaved }) => {
 
   return (
     <div className="d-flex justify-content-center py-2">
-      <FormShell>
+      <FormShell className="modem-form-shell executive-form-shell">
         <FormHeader
           title={selected ? 'Editar usuario' : 'Nuevo usuario'}
           info={[
@@ -59,10 +63,10 @@ const UsuarioForm = ({ selected, onSaved }) => {
           gradient="linear-gradient(180deg,#36ad55,#115e59)"
         />
 
-        <form onSubmit={handleSubmit} className="ui-form-main">
+        <form onSubmit={handleSubmit} className="ui-form-main modem-form-main">
           <div className="ui-form-grid">
-            <FormField label="Usuario">
-              <FormInputWithIcon icon="👤">
+            <FormField label="Usuario" icon="👤">
+              <FormInputWithIcon>
                 <input
                   name="usuario"
                   value={form.usuario}
@@ -73,8 +77,8 @@ const UsuarioForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Correo electrónico">
-              <FormInputWithIcon icon="📧">
+            <FormField label="Correo electrónico" icon="📧">
+              <FormInputWithIcon>
                 <input
                   type="email"
                   name="email"
@@ -86,8 +90,8 @@ const UsuarioForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Contraseña">
-              <FormInputWithIcon icon="🔒">
+            <FormField label="Contraseña" icon="🔒">
+              <FormInputWithIcon>
                 <input
                   type="password"
                   name="password"
@@ -100,8 +104,8 @@ const UsuarioForm = ({ selected, onSaved }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Rol">
-              <FormInputWithIcon icon="🛡️">
+            <FormField label="Rol" icon="🛡️">
+              <FormInputWithIcon>
                 <select
                   name="rol"
                   value={form.rol}

@@ -64,6 +64,7 @@ const ModemsTable = () => {
       dataKey="id_modem"
       fetchData={getModems}
       exportModule="modems"
+      inportarExcel="modemsImport"
       toolbarButtonsVariant="bootstrap"
       columns={columns}
       globalFilterFields={globalFilterFields}
@@ -71,6 +72,9 @@ const ModemsTable = () => {
       formSelectedProp="selectedModem"
       dialogHeaderNew="Nuevo modem"
       dialogHeaderEdit="Editar modem"
+      dialogSubtitleNew="Registro de módem"
+      dialogSubtitleEdit="Actualización de módem"
+      dialogHeaderIcon="pi-wifi"
       toggleAction={toggleAction}
       getToggleMeta={getToggleMeta}
       bulkAction={bulkAction}

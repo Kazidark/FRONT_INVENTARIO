@@ -16,6 +16,7 @@ import FormActions from '../../../shared/components/ui/form/FormActions';
 import FormInputWithIcon from '../../../shared/components/ui/form/FormInputWithIcon';
 import DevicePreviewSidebar from '../../../shared/components/ui/form/DevicePreviewSidebar';
 import './ModemForm.css';
+import '../../../shared/components/ui/form/executive-form-modal.css';
 
 const emptyForm = {
   marca: '',
@@ -68,28 +69,27 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
 
     loadCatalogs();
 
-     const mode = selectedModem ? 'EDITAR' : 'NUEVO';
-     // console.log(`Modo abierto: ${mode}`);
-     if (mode == 'EDITAR') {
-       
-       const modemById = async () => {
-         const dataModeId = await GetModemsById(selectedModem.id_modem)
-         // console.log(dataModeId[0]);
-         setValurfrom(dataModeId[0]);
-        }
-        modemById();
-       
+    const mode = selectedModem ? 'EDITAR' : 'NUEVO';
+    // console.log(`Modo abierto: ${mode}`);
+    if (mode == 'EDITAR') {
+      const modemById = async () => {
+        const dataModeId = await GetModemsById(selectedModem.id_modem)
+        // console.log(dataModeId[0]);
+        setValurfrom(dataModeId[0]);
+      }
+      modemById();
+
     } else {
       setForm(emptyForm);
-       
+
     }
 
   }, [selectedModem]);
 
 
-   /**
-    * seteo de  valores  del formualrio
-   */
+  /**
+   * seteo de  valores  del formualrio
+  */
   const resolveEstadoModemId = (value, catalog) => {
     if (value == null || value === '') return '';
     const asNumber = Number(value);
@@ -129,11 +129,11 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
   const toOptions = (items, getLabel, getValue, firstOption) => {
     const options = Array.isArray(items)
       ? items
-          .map((item) => ({
-            label: getLabel(item),
-            value: getValue(item)
-          }))
-          .filter((option) => option.label != null && option.label !== '')
+        .map((item) => ({
+          label: getLabel(item),
+          value: getValue(item)
+        }))
+        .filter((option) => option.label != null && option.label !== '')
       : [];
 
     return firstOption ? [firstOption, ...options] : options;
@@ -263,7 +263,7 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
 
   return (
     <div className="d-flex justify-content-center py-2 modem-form-page">
-      <FormShell className="modem-form-shell">
+      <FormShell className="modem-form-shell executive-form-shell">
         <DevicePreviewSidebar
           deviceType="Modem"
           centerIcon="pi pi-mobile"
@@ -275,46 +275,46 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
 
         <form onSubmit={handleSubmit} className="ui-form-main modem-form-main">
           <div className="ui-form-grid">
-            <FormField label="Marca">
-              <FormInputWithIcon icon={<i className="pi pi-tag" />}>
+            <FormField label="Marca" icon={<i className="pi pi-tag" />}>
+              <FormInputWithIcon>
                 <InputText
                   name="marca"
                   value={form.marca}
                   onChange={handleChange}
-                  
+
                   className="ui-form-input"
                 />
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Modelo">
-              <FormInputWithIcon icon={<i className="pi pi-mobile" />}>
+            <FormField label="Modelo" icon={<i className="pi pi-mobile" />}>
+              <FormInputWithIcon>
                 <InputText
                   name="modelo"
                   value={form.modelo}
                   onChange={handleChange}
-                  
+
                   className="ui-form-input"
                 />
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="IMEI del módem" full>
-              <FormInputWithIcon icon={<i className="pi pi-hashtag" />}>
+            <FormField label="IMEI del módem" full icon={<i className="pi pi-hashtag" />}>
+              <FormInputWithIcon>
                 <InputText
                   name="imei_modem"
                   value={form.imei_modem}
                   onChange={handleChange}
                   disabled={!!selectedModem}
                   required
-                   maxLength={15}
+                  maxLength={15}
                   className="ui-form-input"
                 />
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Estado del módem">
-              <FormInputWithIcon icon={<i className="pi pi-cog" />}>
+            <FormField label="Estado del módem" icon={<i className="pi pi-cog" />}>
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.estado_modem}
                   onChange={(e) =>
@@ -332,8 +332,8 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Estado del equipo">
-              <FormInputWithIcon icon={<i className="pi pi-map-marker" />}>
+            <FormField label="Estado del equipo" icon={<i className="pi pi-map-marker" />}>
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.estado_equipo}
                   onChange={(e) =>
@@ -351,8 +351,8 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Área">
-              <FormInputWithIcon icon={<i className="pi pi-building" />}>
+            <FormField label="Área" icon={<i className="pi pi-building" />}>
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.id_area ? Number(form.id_area) : null}
                   onChange={(e) =>
@@ -370,8 +370,8 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Colaborador">
-              <FormInputWithIcon icon={<i className="pi pi-user" />}>
+            <FormField label="Colaborador" icon={<i className="pi pi-user" />}>
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.usuario}
                   onChange={(e) =>
@@ -389,8 +389,8 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Chip asignado">
-              <FormInputWithIcon icon={<i className="pi pi-sim-card" />}>
+            <FormField label="Chip asignado" icon={<i className="pi pi-sim-card" />}>
+              <FormInputWithIcon>
                 <Dropdown
                   value={form.id_chip === '' ? '' : Number(form.id_chip)}
                   onChange={(e) =>

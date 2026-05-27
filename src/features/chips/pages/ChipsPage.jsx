@@ -33,14 +33,17 @@ const ChipsPage = () => {
       body: (row) => <Tag value={row.nombre_tipo_chip} severity={row.nombre_tipo_chip === 'Datos' ? 'info' : 'warning'} rounded /> },
     { field: 'nombre_operador', header: 'Operador', sortable: true, style: { minWidth: '10rem' } },
     { field: 'nombre_area', header: 'Área', sortable: true, style: { minWidth: '10rem' } },
+    { field: 'ticket', header: 'Ticket', sortable: true, style: { minWidth: '12rem' } },
     { field: 'nombre_colaborador', header: 'Colaborador', sortable: true, style: { minWidth: '12rem' } },
+   
     { field: 'nombre_estado_chip', header: 'Estado Chip', sortable: true, style: { minWidth: '9rem' },
       body: (row) => {
         const isActivo = row.nombre_estado_chip?.toLowerCase() === 'activo';
         return <Tag value={row.nombre_estado_chip} severity={isActivo ? 'success' : 'danger'} rounded />;
       } },
     { field: 'activo', header: 'Activo', sortable: true, style: { minWidth: '7rem' },
-      body: (row) => <Tag value={row.activo ? 'Sí' : 'No'} severity={row.activo ? 'info' : 'secondary'} rounded /> }
+      body: (row) => <Tag value={row.activo ? 'Sí' : 'No'} severity={row.activo ? 'info' : 'secondary'} rounded /> },
+      
   ];
 
   const globalFilterFields = [

@@ -17,6 +17,7 @@ const columns = [
   { field: 'estado_modem_desc', header: 'Estado Modem', sortable: true, style: { minWidth: '9rem' } },
   { field: 'estado_equipo_desc', header: 'Estado Equipo', sortable: true, style: { minWidth: '9rem' } },
   { field: 'area_desc',header: 'Area',sortable: true},
+  { field: 'ticket',header: 'Ticket',sortable: true},
   {field: 'usuario_desc', header: 'Usuario',sortable: true},
   { field: 'chip_desc', header: 'Chip',sortField: 'chip_desc',sortable: true},
   { header: 'Estado Activo ?', body: activoBody, sortable: true, sortField: 'activo', style: { minWidth: '7rem' }, centered: true }
@@ -52,6 +53,7 @@ const globalFilterFields = [
   'estado_equipo',
   'nombre_area',
   'area',
+  'ticket',
   'usuario',
   'numero_chip',
   'activo'

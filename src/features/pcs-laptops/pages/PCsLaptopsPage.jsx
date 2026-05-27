@@ -34,6 +34,13 @@ const columns = [
     body: (row) => row.nombre_area ?? '-'
   },
   {
+    field: 'ticket',
+    header: 'Ticket',
+    sortable: true,
+    style: { minWidth: '10rem' },
+    body: (row) => row.ticket ?? '-'
+  },
+  {
     field: 'nombre_colaborador',
     header: 'Colaborador',
     sortable: true,

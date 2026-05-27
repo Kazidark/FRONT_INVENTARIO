@@ -37,6 +37,13 @@ const columns = [
     style: { minWidth: '8rem' }
   },
   {
+    field: 'ticket',
+    header: 'Ticket',
+    body: (row) => row?.ticket || '-',
+    sortable: true,
+    style: { minWidth: '8rem' }
+  },
+  {
     field: 'nombre_colaborador',
     header: 'Colaborador',
     body: (row) => row?.nombre_colaborador || '-',

@@ -25,6 +25,7 @@ const emptyForm = {
   estado_modem: '',
   estado_equipo: '',
   id_area: '',
+  ticket:'',
   usuario: '',
   id_chip: ''
 };
@@ -117,6 +118,7 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
       estado_equipo: data.estado_equipo,
       id_area: data.id_area ? String(data.id_area) : '',
       usuario: data.usuario,
+      ticket:data.ticket,
       id_chip: data.id_chip
     });
   }
@@ -197,30 +199,10 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
     { id: 'imei', label: 'IMEI', value: form.imei_modem, icon: 'pi pi-box' },
     { id: 'marca', label: 'Marca', value: form.marca, icon: 'pi pi-tag' },
     { id: 'modelo', label: 'Modelo', value: form.modelo, icon: 'pi pi-bolt' },
-    {
-      id: 'estadoModem',
-      label: 'Estado modem',
-      value: form.estado_modem ? estadoModemLabel : '',
-      icon: 'pi pi-cog'
-    },
-    {
-      id: 'estadoEquipo',
-      label: 'Estado equipo',
-      value: form.estado_equipo ? estadoEquipoLabel : '',
-      icon: 'pi pi-chart-bar'
-    },
-    {
-      id: 'area',
-      label: 'Area',
-      value: form.id_area ? areaLabel : '',
-      icon: 'pi pi-map-marker'
-    },
-    {
-      id: 'usuario',
-      label: 'Colaborador',
-      value: form.usuario ? colaboradorLabel : '',
-      icon: 'pi pi-users'
-    }
+    { id: 'estadoModem',label: 'Estado modem',value: form.estado_modem ? estadoModemLabel : '',icon: 'pi pi-cog'},
+    {id: 'estadoEquipo',label: 'Estado equipo',value: form.estado_equipo ? estadoEquipoLabel : '', icon: 'pi pi-chart-bar'},
+    {id: 'area',label: 'Area',value: form.id_area ? areaLabel : '',icon: 'pi pi-map-marker'},
+    {id: 'usuario',label: 'Colaborador',value: form.usuario ? colaboradorLabel : '',icon: 'pi pi-users'}
   ];
 
   /* =========================
@@ -232,20 +214,15 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
 
     const payload = {
       ...form,
-      estado_modem:
-        form.estado_modem !== '' && form.estado_modem != null
-          ? Number(form.estado_modem)
-          : null,
-      estado_equipo:
-        form.estado_equipo !== '' && form.estado_equipo != null
-          ? Number(form.estado_equipo)
-          : null,
+      estado_modem:form.estado_modem !== '' && form.estado_modem != null? Number(form.estado_modem): null,
+      estado_equipo:form.estado_equipo !== '' && form.estado_equipo != null? Number(form.estado_equipo): null,
       id_area: form.id_area ? Number(form.id_area) : null,
-      usuario: form.usuario ? String(form.usuario) : null,
+      usuario: form.usuario ? Number(form.usuario) : null,
       id_chip: form.id_chip ? Number(form.id_chip) : null
     };
 
     try {
+      console.log(payload)
       if (isEditMode) {
         await updateModem(selectedModem.id_modem, payload);
       } else {
@@ -388,7 +365,7 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
                 />
               </FormInputWithIcon>
             </FormField>
-
+       
             <FormField label="Chip asignado" icon={<i className="pi pi-sim-card" />}>
               <FormInputWithIcon>
                 <Dropdown
@@ -404,6 +381,17 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
                   optionValue="value"
                   placeholder="Seleccione"
                   className="w-100 ui-form-input-control"
+                />
+              </FormInputWithIcon>
+            </FormField>
+            <FormField label="Ticket" icon={<i className="pi pi-sim-card" />}>
+              <FormInputWithIcon>
+              <InputText
+                  name="ticket"
+                  value={form.ticket}
+                  onChange={handleChange}
+                  maxLength={15}
+                  className="ui-form-input"
                 />
               </FormInputWithIcon>
             </FormField>

@@ -33,6 +33,7 @@ const emptyForm = {
   estado_equipo: '',
   id_area: '',
   usuario: '',
+  ticket:'',
   ubicacion: '',
   observaciones: '',
   anexo: ''
@@ -59,6 +60,7 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
       estado_equipo: data.estado_equipo ?? '',
       id_area: data.id_area ?? '',
       usuario: data.usuario ?? '',
+      ticket:data.ticket,
       ubicacion: data.nombre_ubicacion ?? '',
       observaciones: data.observaciones ?? '',
       anexo: data.anexo ?? ''
@@ -137,6 +139,7 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
       estado_pc: toInt(form.estado_pc),
       estado_equipo: toInt(form.estado_equipo),
       id_area: toInt(form.id_area),
+      ticket: form.ticket, 
       usuario: toInt(form.usuario),
       ubicacion: toInt(form.ubicacion),
       observaciones: form.observaciones || null,
@@ -212,10 +215,16 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
                 <input name="modelo" value={form.modelo} onChange={handleChange}  className="ui-form-input" />
               </FormInputWithIcon>
             </FormField>
+            <FormField label="Ticket" icon="📦">
+              <FormInputWithIcon>
+                <input name="ticket" value={form.ticket} onChange={handleChange}  className="ui-form-input" />
+              </FormInputWithIcon>
+            </FormField>
 
             <FormField label="Serie" full icon="🔢">
               <FormInputWithIcon>
-                <input name="serie" value={form.serie} onChange={handleChange} disabled={isEditMode}  className="ui-form-input" />
+                <input name="serie" value={form.serie} onChange={handleChange} disabled={isEditMode}  
+                 maxLength={15}  className="ui-form-input" />
               </FormInputWithIcon>
             </FormField>
 

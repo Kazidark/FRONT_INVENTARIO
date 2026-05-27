@@ -30,6 +30,7 @@ const emptyForm = {
   estado_tablet: '',
   estado_equipo: '',
   id_area: '',
+  ticket:'',
   usuario: '',
   ubicacion: '',
   observaciones: '',
@@ -54,6 +55,7 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
       estado_tablet: data.estado_tablet ?? '',
       estado_equipo: data.estado_equipo ?? '',
       id_area: data.id_area ?? '',
+      ticket:data.ticket?? '--',
       usuario: data.usuario ?? '',
       ubicacion: data.ubicacion ?? '',
       observaciones: data.observaciones ?? '',
@@ -117,6 +119,7 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
       estado_tablet: toInt(form.estado_tablet),
       estado_equipo: toInt(form.estado_equipo),
       id_area: toInt(form.id_area),
+      ticket:form.ticket,
       usuario: toInt(form.usuario),
       ubicacion: form.ubicacion || null,
       observaciones: form.observaciones || null,
@@ -187,6 +190,17 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
                   value={form.modelo}
                   onChange={handleChange}
                   className="ui-form-input"
+                />
+              </FormInputWithIcon>
+            </FormField>
+            <FormField label="Ticket" icon="📱">
+              <FormInputWithIcon>
+                <input
+                  name="ticket"
+                  value={form.ticket}
+                  onChange={handleChange}
+                  className="ui-form-input"
+                  maxLength={15}
                 />
               </FormInputWithIcon>
             </FormField>

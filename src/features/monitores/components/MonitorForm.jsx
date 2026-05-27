@@ -4,7 +4,7 @@ import {
   getAreas,
   getColaboradores,
   getEstadoEquipo,
-  getAsignacion
+  getAsignacion,getUbicacion
 } from '../../../services/api/transvesalMaestro/transversal';
 import { Dropdown } from 'primereact/dropdown';
 import FormShell from '../../../shared/components/ui/form/FormShell';
@@ -29,6 +29,7 @@ const emptyForm = {
   estado_monitor: '',
   status_monitor: '',
   id_area: '',
+  ticket:'',
   usuario: '',
   ubicacion: '',
   observaciones: '',
@@ -43,6 +44,7 @@ const MonitoresForm = ({ selected, onSaved }) => {
   const [asignaciones, setAsignaciones] = useState([]);
   const [loading, setLoading] = useState(false);
   const isEditMode = Boolean(selected);
+  const [ubicaciones, setUbicaciones] = useState([]);
 
   const setValueForm = (data) => {
     setForm({
@@ -52,6 +54,7 @@ const MonitoresForm = ({ selected, onSaved }) => {
       estado_monitor: data.estado_monitor ?? '',
       status_monitor: data.status_monitor ?? '',
       id_area: data.id_area ?? '',
+      ticket:data.ticket?? '',
       usuario: data.usuario ?? '',
       ubicacion: data.ubicacion ?? '',
       observaciones: data.observaciones ?? '',
@@ -65,22 +68,25 @@ const MonitoresForm = ({ selected, onSaved }) => {
   useEffect(() => {
     const loadCatalogs = async () => {
       try {
-        const [areasData, colabData, estadoData, asigData] = await Promise.all([
+        const [areasData, colabData, estadoData, asigData,ubicacionData] = await Promise.all([
           getAreas(),
           getColaboradores(),
           getEstadoEquipo(),
-          getAsignacion()
+          getAsignacion(),
+          // getUbicacion()
         ]);
         setAreas(asArray(areasData));
         setColaboradores(asArray(colabData));
         setEstadosEquipo(asArray(estadoData));
         setAsignaciones(asArray(asigData));
+        // setUbicaciones(asArray(ubicacionData));
       } catch (error) {
         console.error('Error loading catalogs:', error);
         setAreas([]);
         setColaboradores([]);
         setEstadosEquipo([]);
         setAsignaciones([]);
+        // setUbicaciones([]);
       }
     };
 
@@ -112,8 +118,9 @@ const MonitoresForm = ({ selected, onSaved }) => {
       estado_monitor: toInt(form.estado_monitor),
       status_monitor: toInt(form.status_monitor),
       id_area: toInt(form.id_area),
+      ticket : form.ticket,
       usuario: toInt(form.usuario),
-      ubicacion: form.ubicacion || null,
+      ubicacion: form.ubicacion,
       observaciones: form.observaciones || null,
       anexo: form.anexo || null
     };
@@ -169,7 +176,7 @@ const MonitoresForm = ({ selected, onSaved }) => {
                   value={form.serie}
                   onChange={handleChange}
                   disabled={isEditMode}
-                  
+                  maxLength={15}
                   className="ui-form-input"
                 />
               </FormInputWithIcon>
@@ -262,6 +269,31 @@ const MonitoresForm = ({ selected, onSaved }) => {
                   value={form.ubicacion}
                   onChange={handleChange}
                   className="ui-form-input"
+                />
+              </FormInputWithIcon>
+            </FormField>
+
+            {/* <FormField label="Ubicación" icon="📍">
+              <FormInputWithIcon>
+                <Dropdown
+                  value={form.ubicacion !== '' && form.ubicacion != null ? Number(form.ubicacion) : null}
+                  onChange={(e) => setForm((prev) => ({ ...prev, ubicacion: e.value ?? '' }))}
+                  options={ubicaciones}
+                  optionLabel="descripcion"
+                  optionValue="id"
+                  placeholder="Seleccione"
+                  className="w-100 ui-form-input-control"
+                />
+              </FormInputWithIcon>
+            </FormField> */}
+            <FormField label="Ticket" icon="📍">
+              <FormInputWithIcon>
+                <input
+                  name="ticket"
+                  value={form.ticket}
+                  onChange={handleChange}
+                  className="ui-form-input"
+                  maxLength={10}
                 />
               </FormInputWithIcon>
             </FormField>

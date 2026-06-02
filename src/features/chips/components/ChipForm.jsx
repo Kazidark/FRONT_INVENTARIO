@@ -182,17 +182,11 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
     }
   };
 
-  const sideAreaLabel =
-    areaOptions.find((opt) => String(opt.value) === String(form.area))?.label || '—';
-  const sideUserLabel =
-    colaboradorOptions.find((opt) => String(opt.value) === String(form.usuario))?.label ||
-    'Sin colaborador';
-  const estadoChipLabel =
-    estadoChipOptions.find((opt) => String(opt.value) === String(form.estado_chip))?.label || '';
-  const tipoChipLabel =
-    tipoChipOptions.find((opt) => String(opt.value) === String(form.tipo_chip))?.label || '';
-  const operadorLabel =
-    operadoresOptions.find((opt) => String(opt.value) === String(form.operador))?.label || '';
+  const sideAreaLabel =areaOptions.find((opt) => String(opt.value) === String(form.area))?.label || '—';
+  const sideUserLabel =colaboradorOptions.find((opt) => String(opt.value) === String(form.usuario))?.label ||'Sin colaborador';
+  const estadoChipLabel = estadoChipOptions.find((opt) => String(opt.value) === String(form.estado_chip))?.label || '';
+  const tipoChipLabel =tipoChipOptions.find((opt) => String(opt.value) === String(form.tipo_chip))?.label || '';
+  const operadorLabel =operadoresOptions.find((opt) => String(opt.value) === String(form.operador))?.label || '';
 
   return (
     <div className="d-flex justify-content-center py-2">

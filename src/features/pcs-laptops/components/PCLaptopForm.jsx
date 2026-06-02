@@ -61,7 +61,7 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
       id_area: data.id_area ?? '',
       usuario: data.usuario ?? '',
       ticket:data.ticket,
-      ubicacion: data.nombre_ubicacion ?? '',
+      ubicacion: data.id_ubicacion ?? '',
       observaciones: data.observaciones ?? '',
       anexo: data.anexo ?? ''
     });

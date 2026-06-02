@@ -73,20 +73,20 @@ const MonitoresForm = ({ selected, onSaved }) => {
           getColaboradores(),
           getEstadoEquipo(),
           getAsignacion(),
-          // getUbicacion()
+          getUbicacion()
         ]);
         setAreas(asArray(areasData));
         setColaboradores(asArray(colabData));
         setEstadosEquipo(asArray(estadoData));
         setAsignaciones(asArray(asigData));
-        // setUbicaciones(asArray(ubicacionData));
+        setUbicaciones(asArray(ubicacionData));
       } catch (error) {
         console.error('Error loading catalogs:', error);
         setAreas([]);
         setColaboradores([]);
         setEstadosEquipo([]);
         setAsignaciones([]);
-        // setUbicaciones([]);
+        setUbicaciones([]);
       }
     };
 
@@ -147,7 +147,8 @@ const MonitoresForm = ({ selected, onSaved }) => {
   const areaLabel = areas.find((a) => a.id_area === Number(form.id_area))?.nombre_area || '';
   const colaboradorLabel =
     colaboradores.find((c) => c.id_colaborador === Number(form.usuario))?.nombre_completo || '';
-
+  // const ubicacionLabel =
+  //   ubicaciones.find((u) => u.id === Number(form.ubicacion))?.descripcion || '';
   return (
     <div className="d-flex justify-content-center py-2">
       <FormShell className="modem-form-shell executive-form-shell">
@@ -264,12 +265,22 @@ const MonitoresForm = ({ selected, onSaved }) => {
 
             <FormField label="Ubicación" icon="📍">
               <FormInputWithIcon>
-                <input
+
+              <Dropdown
+                  value={form.ubicacion !== '' && form.ubicacion != null ? Number(form.ubicacion) : null}
+                  onChange={(e) => setForm((prev) => ({ ...prev, ubicacion: e.value ?? '' }))}
+                  options={ubicaciones}
+                  optionLabel="descripcion"
+                  optionValue="id"
+                  placeholder="Seleccione"
+                  className="w-100 ui-form-input-control"
+                />
+                {/* <input
                   name="ubicacion"
                   value={form.ubicacion}
                   onChange={handleChange}
                   className="ui-form-input"
-                />
+                /> */}
               </FormInputWithIcon>
             </FormField>
 

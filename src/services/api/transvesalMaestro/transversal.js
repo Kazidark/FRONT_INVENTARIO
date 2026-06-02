@@ -41,6 +41,7 @@ export const getColaboradores = async () => {
   try {
     const response = await api.get('/master-data/colaborador');
     const data = response.data;
+      console.log(data)
     if (Array.isArray(data)) return data;
     if (Array.isArray(data?.result)) return data.result;
     return [];

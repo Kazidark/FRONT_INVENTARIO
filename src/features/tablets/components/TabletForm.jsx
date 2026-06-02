@@ -4,7 +4,8 @@ import {
   getAreas,
   getColaboradores,
   getEstadoEquipo,
-  getAsignacion
+  getAsignacion,
+  getUbicacion
 } from '../../../services/api/transvesalMaestro/transversal';
 import { getChipsDisponibles } from '../../../services/api/chips.api';
 import { Dropdown } from 'primereact/dropdown';
@@ -46,6 +47,7 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
   const [asignaciones, setAsignaciones] = useState([]);
   const [chips, setChips] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [ubicaciones, setUbicaciones] = useState([]);
 
   const setValueForm = (data) => {
     setForm({
@@ -69,18 +71,21 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
   useEffect(() => {
     const loadCatalogs = async () => {
       try {
-        const [areasData, colabData, estadoData, asigData, chipsData] = await Promise.all([
+        const [areasData, colabData, estadoData, asigData, chipsData,ubicacionData] = await Promise.all([
           getAreas(),
           getColaboradores(),
           getEstadoEquipo(),
           getAsignacion(),
-          getChipsDisponibles()
+          getChipsDisponibles(),
+          getUbicacion()
+
         ]);
         setAreas(asArray(areasData));
         setColaboradores(asArray(colabData));
         setEstadosEquipo(asArray(estadoData));
         setAsignaciones(asArray(asigData));
         setChips(asArray(chipsData));
+        setUbicaciones(asArray(ubicacionData));
       } catch (error) {
         console.error('Error loading catalogs:', error);
         setAreas([]);
@@ -88,6 +93,7 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
         setEstadosEquipo([]);
         setAsignaciones([]);
         setChips([]);
+        setUbicaciones([]);
       }
     };
 
@@ -277,12 +283,17 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
 
             <FormField label="Ubicación" icon="📍">
               <FormInputWithIcon>
-                <input
+                <Dropdown
                   name="ubicacion"
-                  value={form.ubicacion}
-                  onChange={handleChange}
-                  className="ui-form-input"
+                  value={form.ubicacion !== '' && form.ubicacion != null ? Number(form.ubicacion) : null}
+                  onChange={(e) => setForm((prev) => ({ ...prev, ubicacion: e.value ?? '' }))}
+                  options={ubicaciones}
+                  optionLabel="descripcion"
+                  optionValue="id"
+                  placeholder="Seleccione"
+                  className="w-100 ui-form-input-control"
                 />
+                
               </FormInputWithIcon>
             </FormField>
 

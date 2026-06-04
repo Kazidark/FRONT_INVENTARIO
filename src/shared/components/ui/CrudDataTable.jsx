@@ -7,9 +7,20 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { FilterMatchMode } from 'primereact/api';
-import { downloadModuleExcel, importModuleExcel } from '../../../services/api/export.api';
+import {
+  downloadModemTemplate,
+  downloadChipTemplate,
+  downloadCelularTemplate,
+  downloadLaptopTemplate,
+  downloadTabletTemplate,
+  downloadModuleExcel,
+  importModuleExcel
+} from '../../../services/api/export.api';
 import './CrudDataTable.css';
 import { useAuth } from '../../context/AuthContext';
+import ActivoSwitchCell from './ActivoSwitchCell';
+
+const IMPORT_TEMPLATE_MODULES = new Set(['modems', 'chips', 'celulares', 'laptos', 'tablets']);
 /**
  * Tabla CRUD reutilizable (PrimeReact DataTable)
  *
@@ -21,8 +32,8 @@ import { useAuth } from '../../context/AuthContext';
  * - FormComponent: componente (opcional) para crear/editar
  * - getFormProps(item): props extra para el FormComponent (opcional)
  * - exportModule: modulo backend para exportar excel (opcional)
- * - toggleAction(row): acción por fila (opcional)
- * - getToggleMeta(row): { icon, severity, confirmMessage } (opcional)
+ * - activoToggle(row, activo): cambiar estado activo/inactivo (switch en columna Estado)
+ * - activoField: nombre del campo booleano (default 'activo')
  * - bulkAction: { label, icon, severity, confirmMessage, action(selectedRows) }
  */
 const CrudDataTable = ({
@@ -41,13 +52,15 @@ const CrudDataTable = ({
   dialogSubtitleNew = '',
   dialogSubtitleEdit = '',
   dialogHeaderIcon = 'pi-mobile',
-  toggleAction,
-  getToggleMeta,
+  activoToggle,
+  activoField = 'activo',
   bulkAction,
   showActionsColumn = true,
+  showToolbarTitle = false,
   formSelectedProp = 'selectedChip',
   exportModule,
-  inportarExcel
+  inportarExcel,
+  templateModule
 }) => {
   const { user } = useAuth();
   const isAdmin = useMemo(() => {
@@ -76,6 +89,7 @@ const CrudDataTable = ({
   const [selectedRows, setSelectedRows] = useState([]);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [downloadingTemplate, setDownloadingTemplate] = useState(false);
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
   });
@@ -84,9 +98,12 @@ const CrudDataTable = ({
   const [dialogVisible, setDialogVisible] = useState(false);
   const [editingRow, setEditingRow] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [togglingActivoId, setTogglingActivoId] = useState(null);
 
-  const [confirmRowVisible, setConfirmRowVisible] = useState(false);
   const [confirmBulkVisible, setConfirmBulkVisible] = useState(false);
+
+  const hasExcelTemplate = IMPORT_TEMPLATE_MODULES.has(templateModule);
+  const showExcelExport = Boolean(exportModule) && !hasExcelTemplate;
 
   const toast = useRef(null);
   const dt = useRef(null);
@@ -135,7 +152,14 @@ const CrudDataTable = ({
       toast.current?.show({
         severity: 'success',
         summary: 'Listo',
-        detail: 'Archivo Excel exportado correctamente.',
+        detail:
+          exportModule === 'modems' ||
+          exportModule === 'chips' ||
+          exportModule === 'celulares' ||
+          exportModule === 'laptos' ||
+          exportModule === 'tablets'
+            ? 'Excel exportado con columnas listas para importar de nuevo.'
+            : 'Archivo Excel exportado correctamente.',
         life: 2500
       });
     } catch {
@@ -147,6 +171,41 @@ const CrudDataTable = ({
       });
     } finally {
       setExporting(false);
+    }
+  };
+
+  const downloadTemplate = async () => {
+    if (!hasExcelTemplate) {
+      return;
+    }
+    setDownloadingTemplate(true);
+    try {
+      if (templateModule === 'chips') {
+        await downloadChipTemplate();
+      } else if (templateModule === 'celulares') {
+        await downloadCelularTemplate();
+      } else if (templateModule === 'laptos') {
+        await downloadLaptopTemplate();
+      } else if (templateModule === 'tablets') {
+        await downloadTabletTemplate();
+      } else {
+        await downloadModemTemplate();
+      }
+      toast.current?.show({
+        severity: 'success',
+        summary: 'Plantilla',
+        detail: 'Plantilla Excel descargada. Complétala e impórtala.',
+        life: 3500
+      });
+    } catch {
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudo descargar la plantilla.',
+        life: 3000
+      });
+    } finally {
+      setDownloadingTemplate(false);
     }
   };
 
@@ -210,7 +269,10 @@ const CrudDataTable = ({
     setDialogVisible(true);
   };
 
+  const isRowActive = (row) => Boolean(row?.[activoField]);
+
   const editRow = (row) => {
+    if (activoToggle && !isRowActive(row)) return;
     setEditingRow(row);
     setSubmitted(false);
     setDialogVisible(true);
@@ -221,38 +283,28 @@ const CrudDataTable = ({
     setDialogVisible(false);
   };
 
-  const confirmToggleRow = (row) => {
-    setEditingRow(row);
-    setConfirmRowVisible(true);
-  };
-
-  const runToggleRow = async () => {
-    const target = editingRow;
-    if (!target) {
-      setConfirmRowVisible(false);
-      return;
-    }
-
+  const handleActivoChange = async (row, nextActive) => {
+    if (!activoToggle || !dataKey) return;
+    const rowId = row?.[dataKey];
+    setTogglingActivoId(rowId);
     try {
-      await toggleAction?.(target);
+      await activoToggle(row, nextActive);
       await doFetch();
       toast.current?.show({
         severity: 'success',
         summary: 'Listo',
-        detail: 'Acción realizada',
+        detail: nextActive ? 'Registro activado' : 'Registro desactivado',
         life: 2500
       });
     } catch {
       toast.current?.show({
         severity: 'error',
         summary: 'Error',
-        detail: 'No se pudo completar la acción',
+        detail: 'No se pudo cambiar el estado',
         life: 3000
       });
     } finally {
-      setConfirmRowVisible(false);
-      setEditingRow(null);
-      setSelectedRows([]);
+      setTogglingActivoId(null);
     }
   };
 
@@ -295,14 +347,72 @@ const CrudDataTable = ({
     try {
       const { data } = await importModuleExcel(inportarExcel, file);
       await doFetch();
+      const payload =
+        Array.isArray(data?.result) && data.result.length > 0 && data.result[0]
+          ? data.result[0]
+          : data;
       const detail =
+        (typeof payload?.message === 'string' && payload.message) ||
         (typeof data?.message === 'string' && data.message) ||
         'Excel importado correctamente.';
+      const s = payload?.summary ?? data?.summary;
+      const parts = [];
+      if (s?.inserted != null) parts.push(`${s.inserted} nuevo(s)`);
+      if (s?.updated != null) parts.push(`${s.updated} actualizado(s)`);
+      if (s?.unchanged != null) parts.push(`${s.unchanged} sin cambios`);
+      if (s?.estadoEquipoMissing > 0) {
+        parts.push(
+          `${s.estadoEquipoMissing} sin estado equipo en catálogo (revise TBLM_asignacion)`,
+        );
+      }
+      if (s?.chipsCreated > 0) {
+        parts.push(`${s.chipsCreated} chip(s) creado(s) en inventario`);
+      }
+      if (s?.chipMissing > 0) {
+        parts.push(`${s.chipMissing} módem(s) sin chip vinculado`);
+      }
+      if (s?.duplicateInFile > 0) {
+        parts.push(`${s.duplicateInFile} duplicado(s) en archivo`);
+      }
+      if (s?.estadoTabletResolved != null) {
+        parts.push(`${s.estadoTabletResolved} con estado tablet (ID)`);
+      }
+      if (s?.estadoEquipoResolved != null) {
+        parts.push(`${s.estadoEquipoResolved} con estado equipo (ID)`);
+      }
+      if (s?.ubicacionResolved != null) {
+        parts.push(`${s.ubicacionResolved} con ubicación (ID)`);
+      }
+      if (
+        templateModule === 'tablets' &&
+        s?.importVersion !== 'tablets-catalog-fk-v3' &&
+        payload?.importVersion !== 'tablets-catalog-fk-v3'
+      ) {
+        parts.push(
+          'Backend desactualizado: en Back-inventario ejecute npm run build y reinicie el servidor',
+        );
+      }
+      if (s?.skippedWithoutSerie > 0) {
+        parts.push(`${s.skippedWithoutSerie} sin serie válida`);
+      }
+      if (s?.skippedWithoutNumber > 0) {
+        parts.push(`${s.skippedWithoutNumber} sin número válido (9 dígitos)`);
+      }
+      if (s?.skippedInvalidRequiredData > 0) {
+        parts.push(`${s.skippedInvalidRequiredData} con catálogo inválido`);
+      }
+      const stats =
+        parts.length > 0 ? ` (${parts.join(', ')})` : '';
+      const warnings = s?.warnings;
+      const warnDetail =
+        Array.isArray(warnings) && warnings.length
+          ? `${detail}${stats} Revise: ${warnings.slice(0, 3).join(' ')}`
+          : `${detail}${stats}`;
       toast.current?.show({
         severity: 'success',
         summary: 'Listo',
-        detail,
-        life: 4000
+        detail: warnDetail,
+        life: 6000
       });
     } catch (err) {
       const apiMsg = err?.response?.data?.message;
@@ -310,7 +420,9 @@ const CrudDataTable = ({
         ? apiMsg.join(' ')
         : typeof apiMsg === 'string'
           ? apiMsg
-          : 'No se pudo importar el Excel.';
+          : err?.message?.includes('timeout')
+            ? 'La importación tardó demasiado. Reinicie el backend actualizado e intente de nuevo.'
+            : 'No se pudo importar el Excel. Use Exportar o Plantilla del sistema y reinicie el backend.';
       toast.current?.show({
         severity: 'error',
         summary: 'Error',
@@ -347,30 +459,50 @@ const CrudDataTable = ({
 
   const header = useMemo(
     () => (
-      <div className="d-flex align-items-center justify-content-between gap-3 flex-nowrap crud-table-header">
-        <div className="d-flex align-items-center gap-2 flex-shrink-0 crud-table-title-wrap">
-          <span className="d-inline-flex align-items-center justify-content-center lh-1 crud-table-title-icon" aria-hidden="true">
-            <i className="pi pi-table" />
-          </span>
-          <div className="fw-semibold crud-table-title-text">{title}</div>
-        </div>
+      <div className="crud-table-header">
+        <div className="crud-toolbar-row">
+          {showToolbarTitle ? (
+            <div className="crud-table-title-wrap">
+              <div className="crud-table-title-row">
+                <span className="crud-table-title-text">{title}</span>
+                {!loading ? (
+                  <span className="crud-record-count" aria-live="polite">
+                    {rows.length} {rows.length === 1 ? 'registro' : 'registros'}
+                  </span>
+                ) : (
+                  <span className="crud-record-count crud-record-count--loading">…</span>
+                )}
+              </div>
+            </div>
+          ) : null}
 
-        <div className="d-flex align-items-center justify-content-end gap-2 flex-nowrap w-100">
-          <div className="input-group input-group-sm crud-search-group">
-            <span className="input-group-text bg-white crud-search-icon-wrap">
-              <i className="pi pi-search" />
-            </span>
+          <div className="crud-search-wrap">
+            <label htmlFor="crud-global-search" className="visually-hidden">
+              Buscar en {title}
+            </label>
+            <i className="pi pi-search crud-search-field-icon" aria-hidden="true" />
             <InputText
+              id="crud-global-search"
               type="search"
               value={globalFilterValue}
-              placeholder="Buscar..."
+              placeholder="Buscar…"
               onChange={onGlobalFilterChange}
-              className="form-control crud-search-input"
+              className="crud-search-input"
+              aria-label={`Buscar en ${title}`}
             />
           </div>
 
-          <div className="d-flex gap-2 flex-nowrap crud-toolbar-actions">
-            {exportModule && isAdmin ? (
+          <div className="crud-toolbar-actions">
+            {hasExcelTemplate && isAdmin ? (
+              <ToolbarBtn
+                label={downloadingTemplate ? 'Descargando...' : 'Plantilla'}
+                icon="pi pi-file-excel"
+                severity="secondary"
+                onClick={downloadTemplate}
+                disabled={downloadingTemplate}
+              />
+            ) : null}
+            {showExcelExport && isAdmin ? (
               <ToolbarBtn
                 label={exporting ? 'Exportando...' : 'Exportar'}
                 icon="pi pi-download"
@@ -417,51 +549,61 @@ const CrudDataTable = ({
       bulkAction,
       globalFilterValue,
       title,
+      showToolbarTitle,
       toolbarButtonsVariant,
       exporting,
       exportModule,
+      showExcelExport,
+      hasExcelTemplate,
       inportarExcel,
       importing,
-      isAdmin
+      isAdmin,
+      loading,
+      rows.length,
+      downloadingTemplate,
+      templateModule,
+      selectedRows?.length
     ]
   );
 
   const actionBodyTemplate = (row) => {
-    if (!FormComponent && !toggleAction) return null;
-    const meta = getToggleMeta?.(row) || {};
+    if (!FormComponent) return null;
+    const canEdit = !activoToggle || isRowActive(row);
+    if (!canEdit) {
+      return (
+        <span className="crud-action-disabled-hint" title="Actívelo para editar">
+          <i className="pi pi-lock" aria-hidden="true" />
+          <span className="visually-hidden">No editable — inactivo</span>
+        </span>
+      );
+    }
     return (
       <div className="d-inline-flex align-items-center justify-content-center gap-2 w-100">
-        {FormComponent ? (
-          <Button
-            icon="pi pi-pencil"
-            rounded
-            text
-            severity="secondary"
-            className="crud-action-icon-btn crud-action-icon-btn--edit"
-            onClick={() => editRow(row)}
-            title="Editar"
-            aria-label="Editar"
-          />
-        ) : null}
-        {toggleAction ? (
-          <Button
-            icon={meta.icon || 'pi pi-check'}
-            rounded
-            text
-            severity="secondary"
-            className={`crud-action-icon-btn ${
-              meta.severity === 'danger' ? 'crud-action-icon-btn--danger' : 'crud-action-icon-btn--success'
-            }`}
-            onClick={() => confirmToggleRow(row)}
-            title={meta.severity === 'danger' ? 'Desactivar' : 'Activar'}
-            aria-label={meta.severity === 'danger' ? 'Desactivar' : 'Activar'}
-          />
-        ) : null}
+        <Button
+          icon="pi pi-pencil"
+          rounded
+          text
+          severity="secondary"
+          className="crud-action-icon-btn crud-action-icon-btn--edit"
+          onClick={() => editRow(row)}
+          title="Editar"
+          aria-label="Editar"
+        />
       </div>
     );
   };
 
-  const rowConfirmMeta = editingRow ? (getToggleMeta?.(editingRow) || {}) : {};
+  const activoSwitchBodyTemplate = (row) => {
+    const rowId = row?.[dataKey];
+    const active = isRowActive(row);
+    return (
+      <ActivoSwitchCell
+        checked={active}
+        disabled={!isAdmin || togglingActivoId === rowId}
+        onChange={(next) => void handleActivoChange(row, next)}
+      />
+    );
+  };
 
   const getAvatarUrl = (row) =>
     row?.avatar_url ||
@@ -470,9 +612,42 @@ const CrudDataTable = ({
     row?.fotoUrl ||
     row?.imagen_url ||
     row?.imagenUrl ||
+    row?.foto_colaborador ||
+    row?.fotoColaborador ||
+    row?.colaborador_foto ||
+    row?.url_foto ||
     row?.foto ||
     row?.imagen ||
     '';
+
+  const resolveCollaboratorLabel = (column, row) => {
+    if (typeof column.body === 'function') {
+      const fromBody = column.body(row);
+      if (typeof fromBody === 'string') {
+        const text = fromBody.trim();
+        if (text && text !== '—' && text !== '-') return text;
+      }
+    }
+
+    const fromFields =
+      row?.usuario_desc ??
+      row?.nombre_colaborador ??
+      row?.nombre_colaborador_desc ??
+      row?.nombre_completo ??
+      null;
+
+    if (fromFields != null && String(fromFields).trim()) {
+      return String(fromFields).trim();
+    }
+
+    const raw = row?.[column.field];
+    const rawText = raw == null ? '' : String(raw).trim();
+    if (rawText && !/^\d+$/.test(rawText)) {
+      return rawText;
+    }
+
+    return null;
+  };
 
   const getInitials = (name) => {
     const text = String(name || '').trim();
@@ -485,24 +660,24 @@ const CrudDataTable = ({
   };
 
   const collaboratorBodyTemplate = (column, row) => {
-    let label = row?.[column.field];
-    if ((label == null || label === '') && typeof column.body === 'function') {
-      const fallback = column.body(row);
-      if (typeof fallback === 'string' || typeof fallback === 'number') {
-        label = fallback;
-      }
-    }
-
-    const displayName = String(label || '-');
+    const label = resolveCollaboratorLabel(column, row);
+    const hasPerson = Boolean(label);
+    const displayName = hasPerson ? label : '—';
     const avatarUrl = getAvatarUrl(row);
+
+    const avatarNode = avatarUrl ? (
+      <img src={avatarUrl} alt={displayName} className="crud-collab-avatar" />
+    ) : hasPerson ? (
+      <span className="crud-collab-avatar crud-collab-avatar--fallback">{getInitials(displayName)}</span>
+    ) : (
+      <span className="crud-collab-avatar crud-collab-avatar--empty" aria-hidden="true">
+        <i className="pi pi-user" />
+      </span>
+    );
 
     return (
       <div className="crud-collab-cell">
-        {avatarUrl ? (
-          <img src={avatarUrl} alt={displayName} className="crud-collab-avatar" />
-        ) : (
-          <span className="crud-collab-avatar crud-collab-avatar--fallback">{getInitials(displayName)}</span>
-        )}
+        <span className="crud-collab-avatar-slot">{avatarNode}</span>
         <span className="crud-collab-name">{displayName}</span>
       </div>
     );
@@ -510,74 +685,97 @@ const CrudDataTable = ({
 
   return (
     <div className="crud-table-shell">
-  
       <Toast ref={toast} />
 
-      <div className="card shadow-sm border-0 crud-header-card">
-        <div className="card-body pb-2">{header}</div>
-      <div className="card p-2 my-6 border-0 crud-grid-card"> 
-        <div className="card-body pt-0">
-        <DataTable
-          ref={dt}
-          value={rows}
-          dataKey={dataKey}
-          selection={selectedRows}
-          onSelectionChange={(e) => setSelectedRows(Array.isArray(e.value) ? e.value : [])}
-          paginator
-          rows={10}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
-          stripedRows
-          size="small"
-          emptyMessage="No hay registros para mostrar"
-          className="p-datatable-sm crud-data-table"
-          loading={loading}
-          filters={filters}
-         globalFilterFields={resolvedGlobalFields}
-        >
+      <div className="crud-table-panel">
+        {header}
+        <div className="crud-data-table-wrap">
+          <DataTable
+            ref={dt}
+            value={rows}
+            dataKey={dataKey}
+            selection={selectedRows}
+            onSelectionChange={(e) => setSelectedRows(Array.isArray(e.value) ? e.value : [])}
+            paginator
+            rows={30}
+            rowsPerPageOptions={[10, 30, 50, 100]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
+            paginatorClassName="crud-paginator"
+            size="small"
+            scrollable
+            scrollHeight="flex"
+            stickyHeader
+            emptyMessage="Sin registros"
+            className="p-datatable-sm crud-data-table"
+            loading={loading}
+            filters={filters}
+            globalFilterFields={resolvedGlobalFields}
+            tableStyle={{ minWidth: '48rem' }}
+            rowClassName={(row) => (activoToggle && !isRowActive(row) ? 'crud-row--inactive' : '')}
+          >
           {bulkAction ? (
             <Column selectionMode="multiple" exportable={false} style={{ width: '3rem' }} />
           ) : null}
 
           {(columns || []).map((c, idx) => {
             const joined = `${c.field || ''} ${c.header || ''}`.toLowerCase();
-            const isCollaboratorColumn = joined.includes('colaborador') || joined.includes('usuario');
+            const isCollaboratorColumn =
+              c.showAvatar ||
+              joined.includes('colaborador') ||
+              joined.includes('usuario');
+            const isActivoColumn = c.columnType === 'activo' && activoToggle;
+            const columnBody = isActivoColumn
+              ? (row) => activoSwitchBodyTemplate(row)
+              : isCollaboratorColumn
+                ? (row) => collaboratorBodyTemplate(c, row)
+                : typeof c.body === 'function'
+                  ? (row) => c.body(row)
+                  : undefined;
             return (
               <Column
                 // eslint-disable-next-line react/no-array-index-key
                 key={c.field || c.header || idx}
                 field={c.field}
                 header={c.header}
-                body={isCollaboratorColumn ? ((row) => collaboratorBodyTemplate(c, row)) : c.body}
+                body={columnBody}
                 sortable={c.sortable}
                 sortField={c.sortField}
                 style={{
                   ...(c.style || {}),
-                  ...(c.centered ? { textAlign: 'center' } : {})
+                  ...(c.centered ? { textAlign: 'center' } : {}),
+                  ...(isCollaboratorColumn ? { minWidth: '11rem' } : {}),
+                  ...(isActivoColumn ? { minWidth: '8.5rem' } : {})
                 }}
                 headerStyle={c.centered ? { textAlign: 'center' } : undefined}
                 exportable={c.exportable}
-                className={c.centered ? 'crud-cell-centered' : undefined}
+                className={
+                  [
+                    c.centered ? 'crud-cell-centered' : null,
+                    isCollaboratorColumn ? 'crud-col-collaborator' : null,
+                    isActivoColumn ? 'crud-col-activo' : null
+                  ]
+                    .filter(Boolean)
+                    .join(' ') || undefined
+                }
                 headerClassName={c.centered ? 'crud-cell-centered' : undefined}
               />
             );
           })}
 
-          {showActionsColumn && (FormComponent || toggleAction) ? (
+          {showActionsColumn && FormComponent ? (
           isAdmin ? (
             <Column
               header="Acciones"
               body={actionBodyTemplate}
               exportable={false}
-              style={{ minWidth: '9rem', textAlign: 'center' }}
+              style={{ minWidth: '5rem', textAlign: 'center' }}
               headerStyle={{ textAlign: 'center' }}
               className="crud-actions-column"
               headerClassName="crud-actions-column"
             />
           ) : null) : null}
-        </DataTable>
-        </div>
+          </DataTable>
         </div>
       </div>
 
@@ -609,28 +807,6 @@ const CrudDataTable = ({
               onCancel={hideDialog}
               {...(getFormProps ? getFormProps(editingRow) : {})}
             />
-          </div>
-        </Dialog>
-      ) : null}
-
-      {toggleAction ? (
-        <Dialog
-          visible={confirmRowVisible}
-          style={{ width: '32rem' }}
-          breakpoints={{ '960px': '80vw', '641px': '92vw' }}
-          header="Confirmar"
-          modal
-          footer={
-            <>
-              <Button label="No" icon="pi pi-times" outlined onClick={() => setConfirmRowVisible(false)} />
-              <Button label="Sí" icon="pi pi-check" severity="danger" onClick={runToggleRow} />
-            </>
-          }
-          onHide={() => setConfirmRowVisible(false)}
-        >
-          <div className="confirmation-content">
-            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-            <span>{rowConfirmMeta.confirmMessage || '¿Confirmas la acción?'}</span>
           </div>
         </Dialog>
       ) : null}

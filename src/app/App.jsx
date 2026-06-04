@@ -48,6 +48,20 @@ function App() {
   );
 }
 
+const VIEW_LABELS = {
+  dashboard: 'Panel principal',
+  modems: 'Módems',
+  chips: 'Chips',
+  celulares: 'Celulares',
+  'pcs-laptops': 'PC / Laptops',
+  monitores: 'Monitores',
+  tablets: 'Tablets',
+  asignaciones: 'Asignaciones',
+  usuarios: 'Usuarios',
+  colaboradores: 'Colaboradores',
+  perfiles: 'Perfiles',
+};
+
 /* =====================================================
    MAIN LAYOUT
 ===================================================== */
@@ -58,68 +72,54 @@ function MainLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const activeView = location.pathname.split('/')[1] || 'dashboard';
+  const pageTitle = VIEW_LABELS[activeView] || 'Inventario TI';
 
   return (
     <div className="app-layout" data-collapsed={collapsed ? 'true' : 'false'}>
-      <header className="app-topbar navbar bg-white border-bottom sticky-top">
-        <div className="container-fluid">
+      <header className="app-topbar navbar sticky-top">
+        <div className="container-fluid app-topbar-container">
           <div className="app-topbar-inner">
-            <div className="d-flex align-items-center gap-2 flex-shrink-0">
-              <button
-                type="button"
-                className="app-topbar-icon-btn d-lg-none"
-                onClick={() => setMobileOpen(true)}
-                aria-label="Abrir menú"
-                title="Menú"
-              >
-                <i className="pi pi-bars" />
-              </button>
-
-              <button
-                type="button"
-                className="app-topbar-icon-btn d-none d-lg-inline-flex"
-                onClick={() => setCollapsed((v) => !v)}
-                aria-label={collapsed ? 'Mostrar menú' : 'Ocultar menú'}
-                title={collapsed ? 'Mostrar menú' : 'Ocultar menú'}
-              >
-                <i className={`pi ${collapsed ? 'pi-bars' : 'pi-angle-left'}`} />
-              </button>
+            <section className="app-topbar-lead">
+              <div className="app-topbar-nav-btns">
+                <button
+                  type="button"
+                  className="app-topbar-icon-btn d-lg-none"
+                  onClick={() => setMobileOpen(true)}
+                  aria-label="Abrir menú"
+                  title="Menú"
+                >
+                  <i className="pi pi-bars" />
+                </button>
+                <button
+                  type="button"
+                  className="app-topbar-icon-btn d-none d-lg-inline-flex"
+                  onClick={() => setCollapsed((v) => !v)}
+                  aria-label={collapsed ? 'Mostrar menú' : 'Ocultar menú'}
+                  title={collapsed ? 'Mostrar menú' : 'Ocultar menú'}
+                >
+                  <i className={`pi ${collapsed ? 'pi-bars' : 'pi-angle-left'}`} />
+                </button>
+              </div>
 
               <div className="app-brand-wrap">
                 <span className="app-brand-logo" aria-hidden="true">
-                  <i className="pi pi-home" />
+                  <i className="pi pi-box" />
                 </span>
                 <span className="app-brand">
                   <span className="app-brand-name">SANNA</span>
-                  <span className="app-brand-sub">Inventario</span>
+                  <span className="app-brand-sub">Inventario TI</span>
                 </span>
               </div>
-            </div>
 
-            <div className="app-topbar-search d-none d-md-flex">
-              <i className="pi pi-search app-topbar-search-icon" aria-hidden="true" />
-              <input
-                type="search"
-                className="app-topbar-search-input"
-                placeholder="Buscar productos, órdenes..."
-                aria-label="Buscar productos, órdenes"
-              />
-              <span className="app-topbar-search-shortcut">⌘K</span>
-            </div>
+              <div className="app-topbar-context">
+                <p className="app-topbar-kicker">Módulo actual</p>
+                <h2 className="app-topbar-title">{pageTitle}</h2>
+              </div>
+            </section>
 
-            <div className="ms-auto d-flex align-items-center gap-2 flex-shrink-0">
-              <button type="button" className="app-topbar-icon-btn" aria-label="Calendario" title="Calendario">
-                <i className="pi pi-calendar" />
-              </button>
-              <button type="button" className="app-topbar-icon-btn" aria-label="Notificaciones" title="Notificaciones">
-                <i className="pi pi-bell" />
-              </button>
-              <button type="button" className="app-topbar-icon-btn" aria-label="Configuración" title="Configuración">
-                <i className="pi pi-cog" />
-              </button>
-
+            <section className="app-topbar-user">
               <UserPill user={user} />
-            </div>
+            </section>
           </div>
         </div>
       </header>
@@ -190,14 +190,10 @@ function UserPill({ user }) {
         {getInitials(label)}
         <span className="app-user-status-dot" />
       </div>
-      <div className="app-user-meta">
-        <div className="app-user-email">
-          <i className="pi pi-envelope me-2" aria-hidden="true" />
-          {email || '—'}
-        </div>
+      <div className="app-user-meta d-none d-md-flex">
+        <div className="app-user-email">{email || '—'}</div>
         <div className="app-user-role">{role || 'Sesión activa'}</div>
       </div>
-      <i className="pi pi-angle-down app-user-chevron" aria-hidden="true" />
     </div>
   );
 }

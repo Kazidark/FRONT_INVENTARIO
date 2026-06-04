@@ -10,6 +10,14 @@ const IMPORT_ENDPOINTS = {
   tabletsImport: 'excel/upload-tablets'
 };
 
+const TEMPLATE_ENDPOINTS = {
+  modems: 'excel/modems/plantilla',
+  chips: 'excel/chips/plantilla',
+  celulares: 'excel/celulares/plantilla',
+  laptos: 'excel/laptos/plantilla',
+  tablets: 'excel/tablets/plantilla'
+};
+
 const getFileNameFromDisposition = (headerValue) => {
   if (!headerValue) return null;
   const utfMatch = headerValue.match(/filename\*=UTF-8''([^;]+)/i);
@@ -20,6 +28,67 @@ const getFileNameFromDisposition = (headerValue) => {
   const basicMatch = headerValue.match(/filename="?([^"]+)"?/i);
   if (basicMatch?.[1]) return basicMatch[1];
   return null;
+};
+
+const triggerBlobDownload = (blob, fileName) => {
+  const url = window.URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = fileName;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+export const downloadModemTemplate = async () => {
+  const response = await api.get(TEMPLATE_ENDPOINTS.modems, { responseType: 'blob' });
+  const disposition = response.headers?.['content-disposition'];
+  const fileName = getFileNameFromDisposition(disposition) || 'modem-plantilla.xlsx';
+  const blob = new Blob([response.data], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  triggerBlobDownload(blob, fileName);
+};
+
+export const downloadChipTemplate = async () => {
+  const response = await api.get(TEMPLATE_ENDPOINTS.chips, { responseType: 'blob' });
+  const disposition = response.headers?.['content-disposition'];
+  const fileName = getFileNameFromDisposition(disposition) || 'chip-plantilla.xlsx';
+  const blob = new Blob([response.data], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  triggerBlobDownload(blob, fileName);
+};
+
+export const downloadCelularTemplate = async () => {
+  const response = await api.get(TEMPLATE_ENDPOINTS.celulares, { responseType: 'blob' });
+  const disposition = response.headers?.['content-disposition'];
+  const fileName = getFileNameFromDisposition(disposition) || 'celular-plantilla.xlsx';
+  const blob = new Blob([response.data], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  triggerBlobDownload(blob, fileName);
+};
+
+export const downloadLaptopTemplate = async () => {
+  const response = await api.get(TEMPLATE_ENDPOINTS.laptos, { responseType: 'blob' });
+  const disposition = response.headers?.['content-disposition'];
+  const fileName = getFileNameFromDisposition(disposition) || 'laptop-plantilla.xlsx';
+  const blob = new Blob([response.data], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  triggerBlobDownload(blob, fileName);
+};
+
+export const downloadTabletTemplate = async () => {
+  const response = await api.get(TEMPLATE_ENDPOINTS.tablets, { responseType: 'blob' });
+  const disposition = response.headers?.['content-disposition'];
+  const fileName = getFileNameFromDisposition(disposition) || 'tablet-plantilla.xlsx';
+  const blob = new Blob([response.data], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  triggerBlobDownload(blob, fileName);
 };
 
 export const downloadModuleExcel = async (moduleKey, fallbackName = DEFAULT_FILENAME) => {
@@ -33,14 +102,7 @@ export const downloadModuleExcel = async (moduleKey, fallbackName = DEFAULT_FILE
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   });
 
-  const url = window.URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = fileName;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  window.URL.revokeObjectURL(url);
+  triggerBlobDownload(blob, fileName);
 };
 
 export const importModuleExcel = async (moduleKey, file) => {
@@ -55,6 +117,7 @@ export const importModuleExcel = async (moduleKey, file) => {
   return api.post(endpoint, formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
-    }
+    },
+    timeout: 300000
   });
 };

@@ -52,9 +52,27 @@
 }
 
 .ui-form-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   font-size: 13px;
   font-weight: 600;
   color: #374151;
+}
+
+.ui-form-label-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  color: var(--sanna-green, #00af50);
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+.ui-form-label-emoji {
+  font-size: 0.9rem;
+  line-height: 1;
 }
 
 .ui-form-input-wrap {

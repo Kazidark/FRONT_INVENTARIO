@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
-import { createTablet, updateTablet } from '../../../services/api/tablets.api';
+import {
+  createTablet,
+  getTabletById,
+  updateTablet
+} from '../../../services/api/tablets.api';
 import {
   getAreas,
   getColaboradores,
@@ -23,6 +27,18 @@ const asArray = (data) => {
   if (Array.isArray(data?.data)) return data.data;
   return [];
 };
+
+const toFkId = (value) => {
+  if (value === '' || value == null) return '';
+  const n = Number(value);
+  return Number.isFinite(n) ? n : '';
+};
+
+const normalizeUbicaciones = (rows) =>
+  asArray(rows).map((u) => ({
+    ...u,
+    id: Number(u.id ?? u.id_ubicacion)
+  }));
 
 const emptyForm = {
   marca: '',
@@ -54,14 +70,14 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
       marca: data.marca ?? '',
       modelo: data.modelo ?? '',
       imei_tablet: data.imei_tablet ?? '',
-      estado_tablet: data.estado_tablet ?? '',
-      estado_equipo: data.estado_equipo ?? '',
-      id_area: data.id_area ?? '',
-      ticket:data.ticket?? '--',
-      usuario: data.usuario ?? '',
-      ubicacion: data.ubicacion ?? '',
+      estado_tablet: toFkId(data.estado_tablet),
+      estado_equipo: toFkId(data.estado_equipo),
+      id_area: toFkId(data.id_area),
+      ticket: data.ticket ?? '',
+      usuario: toFkId(data.usuario),
+      ubicacion: toFkId(data.id_ubicacion),
       observaciones: data.observaciones ?? '',
-      num_chips: data.num_chips ?? data.id_chip ?? ''
+      num_chips: toFkId(data.num_chips ?? data.id_chip)
     });
   };
 
@@ -85,7 +101,7 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
         setEstadosEquipo(asArray(estadoData));
         setAsignaciones(asArray(asigData));
         setChips(asArray(chipsData));
-        setUbicaciones(asArray(ubicacionData));
+        setUbicaciones(normalizeUbicaciones(ubicacionData));
       } catch (error) {
         console.error('Error loading catalogs:', error);
         setAreas([]);
@@ -97,13 +113,24 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
       }
     };
 
-    loadCatalogs();
+    const init = async () => {
+      await loadCatalogs();
+      if (selectedTablet) {
+        try {
+          setLoading(true);
+          const data = await getTabletById(selectedTablet.id_tablet);
+          setValueForm(data ?? selectedTablet);
+        } catch {
+          setValueForm(selectedTablet);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setForm(emptyForm);
+      }
+    };
 
-    if (selectedTablet) {
-      setValueForm(selectedTablet);
-    } else {
-      setForm(emptyForm);
-    }
+    init();
   }, [selectedTablet]);
 
   const handleChange = (e) =>
@@ -121,16 +148,19 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
     const payload = {
       marca: form.marca,
       modelo: form.modelo,
-      imei_tablet: form.imei_tablet,
       estado_tablet: toInt(form.estado_tablet),
       estado_equipo: toInt(form.estado_equipo),
       id_area: toInt(form.id_area),
-      ticket:form.ticket,
+      ticket: form.ticket?.trim() || null,
       usuario: toInt(form.usuario),
-      ubicacion: form.ubicacion || null,
+      ubicacion: toInt(form.ubicacion),
       observaciones: form.observaciones || null,
       num_chips: toInt(form.num_chips)
     };
+
+    if (!isEdit) {
+      payload.imei_tablet = form.imei_tablet;
+    }
 
     try {
       if (isEdit) {
@@ -154,6 +184,8 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
   const areaLabel = areas.find((a) => a.id_area === Number(form.id_area))?.nombre_area || '';
   const colaboradorLabel =
     colaboradores.find((c) => c.id_colaborador === Number(form.usuario))?.nombre_completo || '';
+  const ubicacionLabel =
+    ubicaciones.find((u) => Number(u.id) === Number(form.ubicacion))?.descripcion || '';
   const chipLabel = chips.find((c) => c.id_chip === Number(form.num_chips))?.numero_chip || '';
 
   return (
@@ -171,7 +203,8 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
             { id: 'estadoModem', label: 'Estado', value: estadoTabletLabel, icon: 'pi pi-cog' },
             { id: 'estadoEquipo', label: 'Asignacion', value: estadoEquipoLabel, icon: 'pi pi-chart-bar' },
             { id: 'area', label: 'Area', value: areaLabel, icon: 'pi pi-map-marker' },
-            { id: 'usuario', label: 'Colaborador', value: colaboradorLabel, icon: 'pi pi-users' }
+            { id: 'usuario', label: 'Colaborador', value: colaboradorLabel, icon: 'pi pi-users' },
+            { id: 'ubicacion', label: 'Ubicacion', value: ubicacionLabel, icon: 'pi pi-map' }
           ]}
           chipLabel={chipLabel}
         />
@@ -275,7 +308,10 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
                   options={colaboradores}
                   optionLabel="nombre_completo"
                   optionValue="id_colaborador"
-                  placeholder="Seleccione"
+                  placeholder="Seleccione colaborador"
+                  filter
+                  filterBy="nombre_completo"
+                  showClear
                   className="w-100 ui-form-input-control"
                 />
               </FormInputWithIcon>
@@ -290,7 +326,10 @@ const TabletForm = ({ selectedTablet, onSaved }) => {
                   options={ubicaciones}
                   optionLabel="descripcion"
                   optionValue="id"
-                  placeholder="Seleccione"
+                  placeholder="Seleccione ubicacion"
+                  filter
+                  filterBy="descripcion"
+                  showClear
                   className="w-100 ui-form-input-control"
                 />
                 

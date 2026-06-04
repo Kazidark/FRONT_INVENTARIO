@@ -8,7 +8,7 @@ const DevicePreviewSidebar = ({
   centerSubtitle = '',
   cards = [],
   chipLabel = '',
-  chipIcon = 'pi pi-sim-card'
+  chipIcon = 'pi pi-id-card'
 }) => {
   const rootRef = useRef(null);
   const visibleCards = (cards || []).filter((card) => String(card?.value || '').trim() !== '');

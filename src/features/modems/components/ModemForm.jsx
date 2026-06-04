@@ -15,6 +15,8 @@ import FormField from '../../../shared/components/ui/form/FormField';
 import FormActions from '../../../shared/components/ui/form/FormActions';
 import FormInputWithIcon from '../../../shared/components/ui/form/FormInputWithIcon';
 import DevicePreviewSidebar from '../../../shared/components/ui/form/DevicePreviewSidebar';
+import { downloadModemTemplate } from '../../../services/api/export.api';
+import { toast } from 'react-hot-toast';
 import './ModemForm.css';
 import '../../../shared/components/ui/form/executive-form-modal.css';
 
@@ -39,7 +41,20 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
   const [estadoEquipoCatalog, setEstadoEquipoCatalog] = useState([]);
   const [colaboradores, setColaboradores] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [downloadingTemplate, setDownloadingTemplate] = useState(false);
   const isEditMode = Boolean(selectedModem);
+
+  const handleDownloadTemplate = async () => {
+    setDownloadingTemplate(true);
+    try {
+      await downloadModemTemplate();
+      toast.success('Plantilla descargada. Use los mismos nombres de columna al importar.');
+    } catch {
+      toast.error('No se pudo descargar la plantilla Excel.');
+    } finally {
+      setDownloadingTemplate(false);
+    }
+  };
 
 
   useEffect(() => {
@@ -119,7 +134,7 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
       id_area: data.id_area ? String(data.id_area) : '',
       usuario: data.usuario,
       ticket:data.ticket,
-      id_chip: data.id_chip
+      id_chip: data.num_Chip ?? data.id_chip ?? ''
     });
   }
 
@@ -233,6 +248,13 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
       if (!isEditMode) setForm(emptyForm);
     } catch (error) {
       console.error('Error al guardar módem:', error);
+      const apiMsg = error?.response?.data?.message;
+      const detail = Array.isArray(apiMsg)
+        ? apiMsg.join(' ')
+        : typeof apiMsg === 'string'
+          ? apiMsg
+          : 'No se pudo guardar el módem.';
+      toast.error(detail);
     } finally {
       setLoading(false);
     }
@@ -366,7 +388,7 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
        
-            <FormField label="Chip asignado" icon={<i className="pi pi-sim-card" />}>
+            <FormField label="Chip asignado" icon={<i className="pi pi-id-card" />}>
               <FormInputWithIcon>
                 <Dropdown
                   value={form.id_chip === '' ? '' : Number(form.id_chip)}
@@ -384,7 +406,7 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
                 />
               </FormInputWithIcon>
             </FormField>
-            <FormField label="Ticket" icon={<i className="pi pi-sim-card" />}>
+            <FormField label="Ticket" icon={<i className="pi pi-ticket" />}>
               <FormInputWithIcon>
               <InputText
                   name="ticket"
@@ -398,6 +420,15 @@ const ModemForm = ({ selectedModem, onSaved, onCancel }) => {
           </div>
 
           <FormActions>
+            <Button
+              type="button"
+              label={downloadingTemplate ? 'Descargando…' : 'Plantilla Excel'}
+              icon="pi pi-file-excel"
+              outlined
+              className="modem-form-btn modem-form-btn-secondary"
+              onClick={handleDownloadTemplate}
+              disabled={loading || downloadingTemplate}
+            />
             <Button
               type="submit"
               label={loading ? 'Guardando…' : isEditMode ? 'Editar' : 'Guardar'}

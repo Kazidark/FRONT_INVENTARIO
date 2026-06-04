@@ -1,120 +1,192 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import CrudDataTable from '../../../shared/components/ui/CrudDataTable';
-import { Tag } from 'primereact/tag';
+import PageHero from '../../../shared/components/ui/PageHero';
+import InventoryStatusBadge from '../../../shared/components/ui/InventoryStatusBadge';
 import { getCelulares, updateCelularEstado } from '../../../services/api/celulares.api';
+import {
+  getAsignacion,
+  getEstadoEquipo
+} from '../../../services/api/transvesalMaestro/transversal';
 import CelularForm from '../components/CelularForm';
+import {
+  asArray,
+  buildLookup,
+  resolveLabel,
+  StatPills,
+  wrapFetchWithStats,
+  InventoryPageShell
+} from '../../../shared/utils/inventoryPageUtils';
 
-const columns = [
-  { field: 'marca', header: 'Marca', sortable: true, style: { minWidth: '9rem' } },
-  { field: 'modelo', header: 'Modelo', sortable: true, style: { minWidth: '9rem' } },
-  { field: 'imei_celular', header: 'IMEI', sortable: true, style: { minWidth: '11rem' } },
-  {
-    field: 'estado_celular_desc',
-    header: 'Estado Celular',
-    sortable: true,
-    style: { minWidth: '10rem' },
-    body: (row) => {
-      const desc = row.estado_celular_desc ?? '-';
-      const isOp = desc.toLowerCase() === 'operativo';
-      return <Tag value={desc} severity={isOp ? 'success' : 'danger'} rounded />;
+const buildColumns = (catalogs) => {
+  const { estadoCelularById, estadoEquipoById } = catalogs;
+
+  return [
+    { field: 'marca', header: 'Marca', sortable: true, style: { minWidth: '9rem' } },
+    { field: 'modelo', header: 'Modelo', sortable: true, style: { minWidth: '9rem' } },
+    { field: 'imei_celular', header: 'IMEI', sortable: true, style: { minWidth: '11rem' } },
+    {
+      field: 'estado_celular_desc',
+      header: 'Estado Celular',
+      sortField: 'estado_celular_desc',
+      body: (row) => (
+        <InventoryStatusBadge
+          value={resolveLabel(
+            row,
+            ['estado_celular_desc'],
+            ['estado_celular'],
+            estadoCelularById
+          )}
+        />
+      ),
+      sortable: true,
+      style: { minWidth: '10rem' }
+    },
+    {
+      field: 'estado_equipo_desc',
+      header: 'Estado Equipo',
+      sortField: 'estado_equipo_desc',
+      body: (row) => (
+        <InventoryStatusBadge
+          value={resolveLabel(
+            row,
+            ['estado_equipo_desc'],
+            ['estado_equipo'],
+            estadoEquipoById
+          )}
+        />
+      ),
+      sortable: true,
+      style: { minWidth: '10rem' }
+    },
+    {
+      field: 'nombre_area',
+      header: 'Área',
+      body: (row) => row?.nombre_area ?? '—',
+      sortable: true,
+      style: { minWidth: '10rem' }
+    },
+    {
+      field: 'nombre_colaborador',
+      header: 'Colaborador',
+      sortField: 'nombre_colaborador',
+      body: (row) => row?.nombre_colaborador ?? '—',
+      sortable: true,
+      style: { minWidth: '12rem' }
+    },
+    {
+      field: 'correo_electronico',
+      header: 'Correo',
+      sortable: true,
+      style: { minWidth: '14rem' },
+      body: (row) => row?.correo_electronico?.trim() || '—'
+    },
+    {
+      field: 'ticket',
+      header: 'Ticket',
+      sortable: true,
+      style: { minWidth: '10rem' },
+      body: (row) => row?.ticket?.trim() || '—'
+    },
+    {
+      field: 'observacion',
+      header: 'Observación',
+      sortable: true,
+      style: { minWidth: '10rem' },
+      body: (row) => row?.observacion ?? '—'
+    },
+    {
+      columnType: 'activo',
+      header: 'Estado',
+      sortField: 'activo',
+      sortable: true,
+      centered: true,
+      style: { minWidth: '8.5rem' }
     }
-  },
-  {
-    field: 'estado_equipo_desc',
-    header: 'Estado Equipo',
-    sortable: true,
-    style: { minWidth: '10rem' },
-    body: (row) => row.estado_equipo_desc ?? '-'
-  },
-  {
-    field: 'nombre_area',
-    header: 'Área',
-    sortable: true,
-    style: { minWidth: '10rem' },
-    body: (row) => row.nombre_area ?? '-'
-  },
-  {
-    field: 'ticket',
-    header: 'Ticket',
-    sortable: true,
-    style: { minWidth: '10rem' },
-    body: (row) => row.ticket ?? '-'
-  },
-  {
-    field: 'nombre_colaborador',
-    header: 'Colaborador',
-    sortable: true,
-    style: { minWidth: '12rem' },
-    body: (row) => row.nombre_colaborador ?? '-'
-  },
-  {
-    field: 'numero_chip_desc',
-    header: 'Chip',
-    sortable: true,
-    style: { minWidth: '8rem' },
-    body: (row) => row.numero_chip_desc ?? '-'
-  },
-  {
-    field: 'activo',
-    header: 'Activo',
-    sortable: true,
-    style: { minWidth: '7rem' },
-    body: (row) => (
-      <Tag value={row.activo ? 'Sí' : 'No'} severity={row.activo ? 'info' : 'secondary'} rounded />
-    )
-  }
-];
-
-const toggleAction = async (row) => updateCelularEstado(row.id_celular, !row.activo);
-
-const getToggleMeta = (row) => {
-  const isActive = Boolean(row?.activo);
-  return {
-    icon: isActive ? 'pi pi-ban' : 'pi pi-check',
-    severity: isActive ? 'danger' : 'success',
-    confirmMessage: `¿Seguro que quieres ${isActive ? 'desactivar' : 'reactivar'} el celular ${String(row?.imei_celular ?? '').trim()}?`
-  };
+  ];
 };
 
-const CelularesPage = () => {
-  return (
-    <>
-      <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-        <div>
-          <h1 className="h4 fw-bold mb-1">Inventario de Celulares</h1>
-          <div className="text-secondary small">Búsqueda, exportación y acciones desde la tabla.</div>
-        </div>
-      </div>
+const activoToggle = async (row, activo) => updateCelularEstado(row.id_celular, activo);
 
-      <div className="card border-0 shadow-sm">
-        <div className="card-body p-0">
-          <CrudDataTable
-            title="Tabla de Celulares"
-            dataKey="id_celular"
-            fetchData={getCelulares}
-            exportModule="celulares"
-            inportarExcel="celularesImport"
-            toolbarButtonsVariant="bootstrap"
-            columns={columns}
-            globalFilterFields={[
-              'marca', 'modelo', 'imei_celular',
-              'estado_celular_desc', 'estado_equipo_desc',
-              'nombre_area', 'nombre_colaborador', 'numero_chip_desc'
-            ]}
-            FormComponent={CelularForm}
-            formSelectedProp="selectedCelular"
-            dialogWidth="64rem"
-            dialogBreakpoints={{ '1200px': '92vw', '960px': '96vw' }}
-            dialogHeaderNew="Nuevo celular"
-            dialogHeaderEdit="Editar celular"
-            dialogSubtitleNew="Registro de dispositivo móvil"
-            dialogSubtitleEdit="Actualización de celular"
-            dialogHeaderIcon="pi-mobile"
-            toggleAction={toggleAction}
-            getToggleMeta={getToggleMeta}
-          />
-        </div>
-      </div>
-    </>
+const CelularesPage = () => {
+  const [catalogs, setCatalogs] = useState({
+    estadoCelularById: new Map(),
+    estadoEquipoById: new Map()
+  });
+  const [stats, setStats] = useState({ total: 0, activos: 0 });
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [estados, asignaciones] = await Promise.all([
+          getEstadoEquipo(),
+          getAsignacion()
+        ]);
+        setCatalogs({
+          estadoCelularById: buildLookup(asArray(estados), 'id_estado', 'descripcion'),
+          estadoEquipoById: buildLookup(asArray(asignaciones), 'id_asignado', 'descripcion')
+        });
+      } catch {
+        setCatalogs({
+          estadoCelularById: new Map(),
+          estadoEquipoById: new Map()
+        });
+      }
+    };
+    load();
+  }, []);
+
+  const fetchData = useCallback(
+    () => wrapFetchWithStats(getCelulares, setStats)(),
+    []
+  );
+
+  const columns = useMemo(() => buildColumns(catalogs), [catalogs]);
+
+  return (
+    <InventoryPageShell
+      hero={
+        <PageHero
+          title="Inventario de Celulares"
+          subtitle="Línea móvil corporativa: estados, área, colaborador y tickets. Exportación e importación desde Excel."
+          icon="pi-mobile"
+        >
+          <StatPills total={stats.total} activos={stats.activos} />
+        </PageHero>
+      }
+    >
+      <CrudDataTable
+        title="Listado de celulares"
+        dataKey="id_celular"
+        fetchData={fetchData}
+        templateModule="celulares"
+        inportarExcel="celularesImport"
+        toolbarButtonsVariant="bootstrap"
+        columns={columns}
+        globalFilterFields={[
+          'marca',
+          'modelo',
+          'imei_celular',
+          'estado_celular_desc',
+          'estado_equipo_desc',
+          'nombre_area',
+          'nombre_colaborador',
+          'correo_electronico',
+          'ticket',
+          'observacion',
+          'activo'
+        ]}
+        FormComponent={CelularForm}
+        formSelectedProp="selectedCelular"
+        dialogWidth="64rem"
+        dialogBreakpoints={{ '1200px': '92vw', '960px': '96vw' }}
+        dialogHeaderNew="Nuevo celular"
+        dialogHeaderEdit="Editar celular"
+        dialogSubtitleNew="Alta manual de celular"
+        dialogSubtitleEdit="Actualice los datos del dispositivo"
+        dialogHeaderIcon="pi-mobile"
+        activoToggle={activoToggle}
+      />
+    </InventoryPageShell>
   );
 };
 

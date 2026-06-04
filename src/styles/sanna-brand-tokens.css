@@ -1,0 +1,51 @@
+/**
+ * Tokens extraídos del Manual de Marca SANNA 2023 (v1.0)
+ * Colores principales B.2.1 + secundarios B.2.2
+ */
+:root {
+  /* Principal */
+  --sanna-white: #ffffff;
+  --sanna-green: #00af50;
+  --sanna-green-rgb: 0, 175, 80;
+
+  /* Secundarios (fondos suaves, acentos) */
+  --sanna-yellow: #ffe150;
+  --sanna-cream: #f5ebd7;
+  --sanna-stone: #cdc3b9;
+  --sanna-green-dark: #284623;
+  --sanna-mint-soft: #e1ffd7;
+  --sanna-mint: var(--sanna-mint-soft);
+  --sanna-rose: #ffcdcd;
+  --sanna-lavender: #cdd2ff;
+  --sanna-cyan: #8cf5ff;
+
+  /* Derivados UI (contraste y estados) */
+  --sanna-green-strong: #009a47;
+  --sanna-green-light: #33c273;
+  --sanna-green-ring: rgba(0, 175, 80, 0.22);
+  --sanna-green-muted-bg: #e8f9ef;
+
+  --sanna-ink: #1a2e1f;
+  --sanna-muted: #5c6b62;
+  --sanna-border: rgba(40, 70, 35, 0.12);
+
+  --sanna-surface-0: #ffffff;
+  --sanna-surface-1: #f8fcf9;
+  --sanna-surface-2: var(--sanna-mint-soft);
+
+  --sanna-accent: var(--sanna-green);
+  --sanna-accent-strong: var(--sanna-green-strong);
+  --sanna-accent-ink: var(--sanna-green-dark);
+  --sanna-accent-ring: var(--sanna-green-ring);
+
+  /* Tipografía (manual: Agrandir + Gotham Rounded; fallback web) */
+  --sanna-font-body: "DM Sans", "Segoe UI", system-ui, sans-serif;
+  --sanna-font-display: "Nunito", var(--sanna-font-body);
+  --sanna-font-stats: "Varela Round", var(--sanna-font-body);
+
+  /* Contenedores: radio ≈ ancho/50 (B.6.3) */
+  --sanna-radius-sm: 10px;
+  --sanna-radius-md: 14px;
+  --sanna-radius-lg: 18px;
+  --sanna-radius-xl: 24px;
+}

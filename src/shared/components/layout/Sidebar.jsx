@@ -30,10 +30,10 @@ const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMo
       </div>
 
       <div className="app-sidebar-scroll flex-grow-1 px-2 pb-2">
-        <div className="nav nav-pills flex-column gap-1">
+        <div className="app-nav-list">
           <MenuItem icon="pi-home" label="Inicio" {...menuProps('dashboard')} />
           <MenuItem icon="pi-wifi" label="Módems" {...menuProps('modems')} />
-          <MenuItem icon="pi-sim-card" label="Chips" {...menuProps('chips')} />
+          <MenuItem icon="pi-id-card" label="Chips" {...menuProps('chips')} />
           <MenuItem icon="pi-mobile" label="Celulares" {...menuProps('celulares')} />
           <MenuItem icon="pi-desktop" label="PC / Laptops" {...menuProps('pcs-laptops')} />
           <MenuItem icon="pi-window-maximize" label="Monitores" {...menuProps('monitores')} />
@@ -45,7 +45,7 @@ const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMo
         {isAdmin && (
           <>
             {!collapsed && <div className="app-nav-section mt-3">Administración</div>}
-            <div className="nav nav-pills flex-column gap-1">
+            <div className="app-nav-list">
               <MenuItem icon="pi-users" label="Colaboradores" {...menuProps('colaboradores')} />
               <MenuItem icon="pi-user" label="Usuarios" {...menuProps('usuarios')} />
             </div>
@@ -81,7 +81,7 @@ const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMo
           <div className="app-sidebar-title">Menú</div>
           <button
             type="button"
-            className="btn btn-sm btn-outline-success"
+            className="app-sidebar-close-btn"
             onClick={() => onMobileClose?.()}
             aria-label="Cerrar"
           >
@@ -90,10 +90,10 @@ const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMo
         </div>
 
         <div className="app-sidebar-scroll px-2 py-2">
-          <div className="nav nav-pills flex-column gap-1">
+          <div className="app-nav-list">
             <MenuItem icon="pi-home" label="Inicio" {...menuPropsMobile('dashboard')} />
             <MenuItem icon="pi-wifi" label="Módems" {...menuPropsMobile('modems')} />
-            <MenuItem icon="pi-sim-card" label="Chips" {...menuPropsMobile('chips')} />
+            <MenuItem icon="pi-id-card" label="Chips" {...menuPropsMobile('chips')} />
             <MenuItem icon="pi-mobile" label="Celulares" {...menuPropsMobile('celulares')} />
             <MenuItem icon="pi-desktop" label="PC / Laptops" {...menuPropsMobile('pcs-laptops')} />
             <MenuItem icon="pi-window-maximize" label="Monitores" {...menuPropsMobile('monitores')} />
@@ -104,7 +104,7 @@ const Sidebar = ({ collapsed, toggle, onSelect, active, mobileOpen = false, onMo
           {isAdmin && (
             <>
               <div className="app-nav-section mt-3">Administración</div>
-              <div className="nav nav-pills flex-column gap-1">
+              <div className="app-nav-list">
                 <MenuItem icon="pi-users" label="Colaboradores" {...menuPropsMobile('colaboradores')} />
                 <MenuItem icon="pi-user" label="Usuarios" {...menuPropsMobile('usuarios')} />
               </div>
@@ -161,15 +161,18 @@ const MenuItem = ({ icon, label, active, onClick, collapsed }) => (
     type="button"
     onClick={onClick}
     title={label}
-    className={`nav-link d-flex align-items-center gap-2 text-start ${active ? 'active' : ''}`}
-    style={{
-      justifyContent: collapsed ? 'center' : 'flex-start'
-    }}
+    className={[
+      'app-nav-item',
+      active ? 'app-nav-item--active' : '',
+      collapsed ? 'app-nav-item--collapsed' : ''
+    ]
+      .filter(Boolean)
+      .join(' ')}
   >
     <span className="app-nav-icon" aria-hidden="true">
       <i className={`pi ${icon}`} />
     </span>
-    {!collapsed && <span className="flex-grow-1">{label}</span>}
+    {!collapsed ? <span className="app-nav-label">{label}</span> : null}
   </button>
 );
 

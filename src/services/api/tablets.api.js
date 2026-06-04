@@ -17,11 +17,11 @@ export const getTablets = async () => {
 /* =========================
    OBTENER POR ID
 ========================= */
-// export const getTabletById = async (id) => {
-//   const { data } = await api.get(`module-tablet/GetAllbyId/${id}`);
-//   const result = data?.result ?? data;
-//   return Array.isArray(result) ? result[0] : result;
-// };
+export const getTabletById = async (id) => {
+  const { data } = await api.get(`module-tablet/GetAllbyId/${id}`);
+  const result = data?.result ?? data;
+  return Array.isArray(result) ? result[0] : result;
+};
 
 /* =========================
    CREAR

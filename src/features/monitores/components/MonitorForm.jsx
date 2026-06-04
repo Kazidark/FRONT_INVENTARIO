@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
-import { createMonitor, updateMonitor } from '../../../services/api/monitores.api';
+import {
+  createMonitor,
+  getMonitorById,
+  updateMonitor
+} from '../../../services/api/monitores.api';
 import {
   getAreas,
   getColaboradores,
@@ -54,9 +58,9 @@ const MonitoresForm = ({ selected, onSaved }) => {
       estado_monitor: data.estado_monitor ?? '',
       status_monitor: data.status_monitor ?? '',
       id_area: data.id_area ?? '',
-      ticket:data.ticket?? '',
+      ticket: data.ticket ?? '',
       usuario: data.usuario ?? '',
-      ubicacion: data.ubicacion ?? '',
+      ubicacion: data.id_ubicacion ?? data.ubicacion ?? '',
       observaciones: data.observaciones ?? '',
       anexo: data.anexo ?? ''
     });
@@ -93,7 +97,18 @@ const MonitoresForm = ({ selected, onSaved }) => {
     loadCatalogs();
 
     if (selected) {
-      setValueForm(selected);
+      const loadMonitor = async () => {
+        try {
+          setLoading(true);
+          const data = await getMonitorById(selected.id_monitor);
+          setValueForm(data ?? selected);
+        } catch {
+          setValueForm(selected);
+        } finally {
+          setLoading(false);
+        }
+      };
+      loadMonitor();
     } else {
       setForm(emptyForm);
     }
@@ -112,18 +127,21 @@ const MonitoresForm = ({ selected, onSaved }) => {
     setLoading(true);
 
     const payload = {
-      serie: form.serie,
       marca: form.marca,
       modelo: form.modelo,
       estado_monitor: toInt(form.estado_monitor),
       status_monitor: toInt(form.status_monitor),
       id_area: toInt(form.id_area),
-      ticket : form.ticket,
+      ticket: form.ticket?.trim() || null,
       usuario: toInt(form.usuario),
-      ubicacion: form.ubicacion,
+      ubicacion: toInt(form.ubicacion),
       observaciones: form.observaciones || null,
-      anexo: form.anexo || null
+      anexo: toInt(form.anexo)
     };
+
+    if (!isEditMode) {
+      payload.serie = form.serie;
+    }
 
     try {
       if (isEditMode) {
@@ -177,7 +195,7 @@ const MonitoresForm = ({ selected, onSaved }) => {
                   value={form.serie}
                   onChange={handleChange}
                   disabled={isEditMode}
-                  maxLength={15}
+                  maxLength={60}
                   className="ui-form-input"
                 />
               </FormInputWithIcon>
@@ -326,9 +344,10 @@ const MonitoresForm = ({ selected, onSaved }) => {
                   name="observaciones"
                   value={form.observaciones}
                   onChange={handleChange}
-                  rows={2}
+                  rows={3}
+                  maxLength={255}
                   className="ui-form-input"
-                  style={{ resize: 'none' }}
+                  style={{ resize: 'vertical' }}
                 />
               </FormInputWithIcon>
             </FormField>
@@ -336,7 +355,7 @@ const MonitoresForm = ({ selected, onSaved }) => {
 
           <FormActions>
             <button type="submit" className="btn btn-primary rounded-pill px-4" disabled={loading}>
-              {loading ? 'Guardando…' : 'Guardar'}
+              {loading ? 'Guardando…' : isEditMode ? 'Editar' : 'Guardar'}
             </button>
           </FormActions>
         </form>

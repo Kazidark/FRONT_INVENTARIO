@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { createCelular, getCelularById, updateCelular } from '../../../services/api/celulares.api';
 import {
   getAreas,
@@ -6,7 +7,7 @@ import {
   getColaboradores,
   getEstadoEquipo
 } from '../../../services/api/transvesalMaestro/transversal';
-import { getChipsDisponibles } from '../../../services/api/chips.api';
+// import { getChipsDisponibles } from '../../../services/api/chips.api';
 import { Dropdown } from 'primereact/dropdown';
 import FormShell from '../../../shared/components/ui/form/FormShell';
 import FormField from '../../../shared/components/ui/form/FormField';
@@ -33,7 +34,7 @@ const emptyForm = {
 const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
   const [form, setForm] = useState(emptyForm);
   const [areas, setAreas] = useState([]);
-  const [chips, setChips] = useState([]);
+  // const [chips, setChips] = useState([]);
   const [asignacion, setAsignacion] = useState([]);
   const [estadoEquipoCatalog, setEstadoEquipoCatalog] = useState([]);
   const [colaboradores, setColaboradores] = useState([]);
@@ -62,25 +63,25 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
   useEffect(() => {
     const loadCatalogs = async () => {
       try {
-        const [areasData, colaboradoresData, asignacionData, chipsData, estadoEquipoData] = await Promise.all([
+        const [areasData, colaboradoresData, asignacionData, estadoEquipoData] = await Promise.all([
           getAreas(),
           getColaboradores(),
           getAsignacion(),
-          getChipsDisponibles(),
+          // getChipsDisponibles(),
           getEstadoEquipo()
         ]);
 
         setAreas(Array.isArray(areasData) ? areasData : []);
         setColaboradores(Array.isArray(colaboradoresData) ? colaboradoresData : []);
         setAsignacion(Array.isArray(asignacionData) ? asignacionData : []);
-        setChips(Array.isArray(chipsData) ? chipsData : []);
+        // setChips(Array.isArray(chipsData) ? chipsData : []);
         setEstadoEquipoCatalog(Array.isArray(estadoEquipoData) ? estadoEquipoData : []);
       } catch (error) {
         console.error('Error loading catalogs:', error);
         setAreas([]);
         setColaboradores([]);
         setAsignacion([]);
-        setChips([]);
+        // setChips([]);
         setEstadoEquipoCatalog([]);
       }
     };
@@ -119,28 +120,37 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
     const toInt = (v) => (v === '' || v == null ? null : Number(v));
 
     const payload = {
-      marca: form.marca,
-      modelo: form.modelo,
-      imei_celular: form.imei_celular,
+      marca: form.marca?.trim() ?? '',
+      modelo: form.modelo?.trim() ?? '',
+      imei_celular: form.imei_celular?.trim() ?? '',
       estado_celular: toInt(form.estado_celular),
       estado_equipo: toInt(form.estado_equipo),
       id_area: toInt(form.id_area),
       usuario: toInt(form.usuario),
-      numero_chip: toInt(form.numero_chip),
-      ticket: form.ticket,
-      correo_electronico: form.correo_electronico,
-      observacion: form.observacion,
+      ticket: form.ticket?.trim() || null,
+      correo_electronico: form.correo_electronico?.trim() || null,
+      email: form.correo_electronico?.trim() || null,
+      observacion: form.observacion?.trim() || null,
     };
 
     try {
       if (isEditMode) {
         await updateCelular(selectedCelular.id_celular, payload);
+        toast.success('Celular actualizado correctamente.');
       } else {
         await createCelular(payload);
+        toast.success('Celular creado correctamente.');
       }
       onSaved?.();
       if (!isEditMode) setForm(emptyForm);
     } catch (error) {
+      const apiMsg = error?.response?.data?.message;
+      const detail = Array.isArray(apiMsg)
+        ? apiMsg.join(' ')
+        : typeof apiMsg === 'string'
+          ? apiMsg
+          : 'No se pudo guardar el celular. Revise los campos obligatorios.';
+      toast.error(detail);
       console.error('Error al guardar celular:', error);
     } finally {
       setLoading(false);
@@ -154,7 +164,7 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
   const areaLabel = areas.find((a) => a.id_area === Number(form.id_area))?.nombre_area || '';
   const colaboradorLabel =
     colaboradores.find((c) => c.id_colaborador === Number(form.usuario))?.nombre_completo || '';
-  const chipLabel = chips.find((c) => c.id_chip === Number(form.numero_chip))?.numero_chip || '';
+  // const chipLabel = chips.find((c) => c.id_chip === Number(form.numero_chip))?.numero_chip || '';
 
   return (
     <div className="d-flex justify-content-center py-2">
@@ -171,9 +181,17 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
             { id: 'estadoModem', label: 'Estado', value: estadoCelularLabel, icon: 'pi pi-cog' },
             { id: 'estadoEquipo', label: 'Asignacion', value: estadoEquipoLabel, icon: 'pi pi-chart-bar' },
             { id: 'area', label: 'Area', value: areaLabel, icon: 'pi pi-map-marker' },
-            { id: 'usuario', label: 'Colaborador', value: colaboradorLabel, icon: 'pi pi-users' }
+            { id: 'usuario', label: 'Colaborador', value: colaboradorLabel, icon: 'pi pi-users' },
+            {
+              id: 'correo',
+              label: 'Correo electrónico',
+              value: form.correo_electronico,
+              icon: 'pi pi-envelope'
+            },
+            { id: 'ticket', label: 'tikets', value: form.ticket, icon: 'pi pi-ticket' },
+            { id: 'obs', label: 'Observación', value: form.observacion, icon: 'pi pi-comment' }
           ]}
-          chipLabel={chipLabel}
+          // chipLabel={chipLabel}
         />
 
         <form onSubmit={handleSubmit} className="ui-form-main modem-form-main">
@@ -198,7 +216,8 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
                   name="marca"
                   value={form.marca}
                   onChange={handleChange}
-                  
+                  maxLength={50}
+                  required
                   className="ui-form-input"
                 />
               </FormInputWithIcon>
@@ -210,7 +229,8 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
                   name="modelo"
                   value={form.modelo}
                   onChange={handleChange}
-                  
+                  maxLength={50}
+                  required
                   className="ui-form-input"
                 />
               </FormInputWithIcon>
@@ -280,7 +300,7 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Chip asignado" icon="📶">
+            {/* <FormField label="Chip asignado" icon="📶">
               <FormInputWithIcon>
                 <Dropdown
                   value={form.numero_chip !== '' && form.numero_chip != null ? Number(form.numero_chip) : null}
@@ -294,33 +314,37 @@ const CelularForm = ({ selectedCelular, onSaved, onCancel }) => {
                   className="w-100 ui-form-input-control"
                 />
               </FormInputWithIcon>
-            </FormField>
-            <FormField label="Ticket" icon="🎫">
+            </FormField> */}
+            <FormField label="tikets" icon="🎫">
               <FormInputWithIcon>
                 <input
                   name="ticket"
                   value={form.ticket}
                   onChange={handleChange}
+                  maxLength={255}
                   className="ui-form-input"
                 />
               </FormInputWithIcon>
             </FormField>
-            <FormField label="Correo Electronico" icon="📧">
+            <FormField label="Correo electrónico" icon="📧">
               <FormInputWithIcon>
                 <input
                   name="correo_electronico"
+                  type="email"
                   value={form.correo_electronico}
                   onChange={handleChange}
+                  maxLength={255}
                   className="ui-form-input"
                 />
               </FormInputWithIcon>
             </FormField>
-            <FormField label="Observacion" icon="📝">
+            <FormField label="Observación" icon="📝">
               <FormInputWithIcon>
                 <input
                   name="observacion"
                   value={form.observacion}
                   onChange={handleChange}
+                  maxLength={255}
                   className="ui-form-input"
                 />
               </FormInputWithIcon>

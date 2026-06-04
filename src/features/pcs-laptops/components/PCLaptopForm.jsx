@@ -33,7 +33,7 @@ const emptyForm = {
   estado_equipo: '',
   id_area: '',
   usuario: '',
-  ticket:'',
+  ticket: '',
   ubicacion: '',
   observaciones: '',
   anexo: ''
@@ -60,7 +60,7 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
       estado_equipo: data.estado_equipo ?? '',
       id_area: data.id_area ?? '',
       usuario: data.usuario ?? '',
-      ticket:data.ticket,
+      ticket: data.ticket ?? '',
       ubicacion: data.id_ubicacion ?? '',
       observaciones: data.observaciones ?? '',
       anexo: data.anexo ?? ''
@@ -139,7 +139,7 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
       estado_pc: toInt(form.estado_pc),
       estado_equipo: toInt(form.estado_equipo),
       id_area: toInt(form.id_area),
-      ticket: form.ticket, 
+      ticket: form.ticket?.trim() || null,
       usuario: toInt(form.usuario),
       ubicacion: toInt(form.ubicacion),
       observaciones: form.observaciones || null,
@@ -178,7 +178,7 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
           centerTitle={form.marca || 'Equipo'}
           centerSubtitle={form.modelo || 'Esperando datos'}
           cards={[
-            { id: 'imei', label: 'Serie', value: form.serie, icon: 'pi pi-box' },
+            { id: 'imei', label: 'HOST', value: form.serie, icon: 'pi pi-box' },
             { id: 'marca', label: 'Marca', value: form.marca, icon: 'pi pi-tag' },
             { id: 'modelo', label: 'Modelo', value: form.modelo, icon: 'pi pi-desktop' },
             { id: 'estadoModem', label: 'Estado PC', value: estadoPcLabel, icon: 'pi pi-cog' },
@@ -217,14 +217,14 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
             </FormField>
             <FormField label="Ticket" icon="📦">
               <FormInputWithIcon>
-                <input name="ticket" value={form.ticket} onChange={handleChange}  className="ui-form-input" />
+                <input name="ticket" value={form.ticket ?? ''} onChange={handleChange} className="ui-form-input" />
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Serie" full icon="🔢">
+            <FormField label="HOST (serie)" full icon="🔢">
               <FormInputWithIcon>
-                <input name="serie" value={form.serie} onChange={handleChange} disabled={isEditMode}  
-                 maxLength={15}  className="ui-form-input" />
+                <input name="serie" value={form.serie} onChange={handleChange} disabled={isEditMode}
+                  maxLength={60} className="ui-form-input" />
               </FormInputWithIcon>
             </FormField>
 
@@ -306,7 +306,7 @@ const PCLaptopForm = ({ selected, onSaved, onCancel }) => {
 
             <FormField label="Observaciones" full icon="📝">
               <FormInputWithIcon>
-                <textarea name="observaciones" value={form.observaciones} onChange={handleChange} rows={2} className="ui-form-input" style={{ resize: 'none' }} />
+                <textarea name="observaciones" value={form.observaciones ?? ''} onChange={handleChange} rows={3} maxLength={255} className="ui-form-input" style={{ resize: 'vertical' }} />
               </FormInputWithIcon>
             </FormField>
           </div>

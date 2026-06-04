@@ -17,11 +17,11 @@ export const getMonitores = async () => {
 /* =========================
    OBTENER POR ID
 ========================= */
-// export const getMonitorById = async (id) => {
-//   const { data } = await api.get(`module-monitores/GetAllbyId/${id}`);
-//   const result = data?.result ?? data;
-//   return Array.isArray(result) ? result[0] : result;
-// };
+export const getMonitorById = async (id) => {
+  const { data } = await api.get(`module-monitores/GetAllbyId/${id}`);
+  const result = data?.result ?? data;
+  return Array.isArray(result) ? result[0] : result;
+};
 
 /* =========================
    CREAR

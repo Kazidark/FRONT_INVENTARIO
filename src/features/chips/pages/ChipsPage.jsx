@@ -1,19 +1,70 @@
+import { useCallback, useMemo, useState } from 'react';
 import CrudDataTable from '../../../shared/components/ui/CrudDataTable';
-import { Tag } from 'primereact/tag';
+import PageHero from '../../../shared/components/ui/PageHero';
+import InventoryStatusBadge from '../../../shared/components/ui/InventoryStatusBadge';
+import ChipTipoBadge from '../../../shared/components/ui/ChipTipoBadge';
 import ChipForm from '../components/ChipForm';
 import { getChips, updateChip } from '../../../services/api/chips.api';
+import {
+  StatPills,
+  wrapFetchWithStats,
+  InventoryPageShell
+} from '../../../shared/utils/inventoryPageUtils';
+
+const tipoChipBody = (row) => {
+  const tipo = row?.nombre_tipo_chip;
+  if (!tipo || tipo === '-') return '—';
+  return <ChipTipoBadge value={tipo} />;
+};
+const buildColumns = () => [
+  { field: 'numero_chip', header: 'Número', sortable: true, style: { minWidth: '10rem' } },
+  { field: 'iccid', header: 'ICCID', sortable: true, style: { minWidth: '12rem' } },
+  {
+    field: 'nombre_tipo_chip',
+    header: 'Tipo',
+    sortable: true,
+    style: { minWidth: '8rem' },
+    body: tipoChipBody
+  },
+  { field: 'nombre_operador', header: 'Operador', sortable: true, style: { minWidth: '10rem' } },
+  { field: 'nombre_area', header: 'Área', sortable: true, style: { minWidth: '10rem' } },
+  { field: 'ticket', header: 'Ticket', sortable: true, style: { minWidth: '12rem' } },
+  {
+    field: 'nombre_colaborador',
+    header: 'Colaborador',
+    sortField: 'nombre_colaborador',
+    sortable: true,
+    style: { minWidth: '12rem' }
+  },
+  {
+    field: 'nombre_estado_chip',
+    header: 'Estado Chip',
+    sortField: 'nombre_estado_chip',
+    body: (row) => <InventoryStatusBadge value={row?.nombre_estado_chip} />,
+    sortable: true,
+    style: { minWidth: '9rem' }
+  },
+  {
+    columnType: 'activo',
+    header: 'Estado',
+    sortField: 'activo',
+    sortable: true,
+    centered: true,
+    style: { minWidth: '8.5rem' }
+  }
+];
 
 const ChipsPage = () => {
-  const toggleAction = async (row) => updateChip(row.id_chip, { activo: !row.activo });
+  const [stats, setStats] = useState({ total: 0, activos: 0 });
 
-  const getToggleMeta = (row) => {
-    const isActive = Boolean(row?.activo);
-    return {
-      icon: isActive ? 'pi pi-ban' : 'pi pi-check',
-      severity: isActive ? 'danger' : 'success',
-      confirmMessage: `¿Seguro que quieres ${isActive ? 'desactivar' : 'reactivar'} el chip ${String(row?.numero_chip ?? '').trim()}?`
-    };
-  };
+  const fetchData = useCallback(
+    () => wrapFetchWithStats(getChips, setStats)(),
+    []
+  );
+
+  const columns = useMemo(() => buildColumns(), []);
+
+  const activoToggle = async (row, activo) => updateChip(row.id_chip, { activo });
 
   const bulkAction = {
     label: 'Desactivar',
@@ -26,67 +77,50 @@ const ChipsPage = () => {
     }
   };
 
-  const columns = [
-    { field: 'numero_chip', header: 'Número', sortable: true, style: { minWidth: '10rem' } },
-    { field: 'iccid', header: 'ICCID', sortable: true, style: { minWidth: '12rem' } },
-    { field: 'nombre_tipo_chip', header: 'Tipo', sortable: true, style: { minWidth: '8rem' },
-      body: (row) => <Tag value={row.nombre_tipo_chip} severity={row.nombre_tipo_chip === 'Datos' ? 'info' : 'warning'} rounded /> },
-    { field: 'nombre_operador', header: 'Operador', sortable: true, style: { minWidth: '10rem' } },
-    { field: 'nombre_area', header: 'Área', sortable: true, style: { minWidth: '10rem' } },
-    { field: 'ticket', header: 'Ticket', sortable: true, style: { minWidth: '12rem' } },
-    { field: 'nombre_colaborador', header: 'Colaborador', sortable: true, style: { minWidth: '12rem' } },
-   
-    { field: 'nombre_estado_chip', header: 'Estado Chip', sortable: true, style: { minWidth: '9rem' },
-      body: (row) => {
-        const isActivo = row.nombre_estado_chip?.toLowerCase() === 'activo';
-        return <Tag value={row.nombre_estado_chip} severity={isActivo ? 'success' : 'danger'} rounded />;
-      } },
-    { field: 'activo', header: 'Activo', sortable: true, style: { minWidth: '7rem' },
-      body: (row) => <Tag value={row.activo ? 'Sí' : 'No'} severity={row.activo ? 'info' : 'secondary'} rounded /> },
-      
-  ];
-
-  const globalFilterFields = [
-    'numero_chip', 'iccid', 'nombre_tipo_chip', 'nombre_operador',
-    'nombre_area', 'nombre_colaborador', 'nombre_estado_chip'
-  ];
-
   return (
-    <>
-      <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-        <div>
-          <h1 className="h4 fw-bold mb-1">Inventario de Chips</h1>
-          <div className="text-secondary small">Búsqueda, exportación y acciones desde la tabla.</div>
-        </div>
-      </div>
-
-      <div className="card border-0 shadow-sm">
-        <div className="card-body p-0">
-          <CrudDataTable
-            title="Tablas de Chips"
-            dataKey="id_chip"
-            fetchData={getChips}
-            exportModule="chips"
-            inportarExcel="chipsImport"
-            toolbarButtonsVariant="bootstrap"
-            columns={columns}
-            globalFilterFields={globalFilterFields}
-            FormComponent={ChipForm}
-            formSelectedProp="selectedChip"
-            dialogWidth="64rem"
-            dialogBreakpoints={{ '1200px': '92vw', '960px': '96vw' }}
-            dialogHeaderNew="Nuevo chip"
-            dialogHeaderEdit="Editar chip"
-            dialogSubtitleNew="Registro de chip SIM"
-            dialogSubtitleEdit="Actualización de chip SIM"
-            dialogHeaderIcon="pi-id-card"
-            toggleAction={toggleAction}
-            getToggleMeta={getToggleMeta}
-            bulkAction={bulkAction}
-          />
-        </div>
-      </div>
-    </>
+    <InventoryPageShell
+      hero={
+        <PageHero
+          title="Inventario de Chips"
+          subtitle="SIM corporativas: ICCID, operador, tipo de plan, área y colaborador. Plantilla, exportación e importación Excel."
+          icon="pi-id-card"
+        >
+          <StatPills total={stats.total} activos={stats.activos} />
+        </PageHero>
+      }
+    >
+      <CrudDataTable
+        title="Listado de chips"
+        dataKey="id_chip"
+        fetchData={fetchData}
+        templateModule="chips"
+        inportarExcel="chipsImport"
+        toolbarButtonsVariant="bootstrap"
+        columns={columns}
+        globalFilterFields={[
+          'numero_chip',
+          'iccid',
+          'nombre_tipo_chip',
+          'nombre_operador',
+          'nombre_area',
+          'nombre_colaborador',
+          'nombre_estado_chip',
+          'ticket',
+          'activo'
+        ]}
+        FormComponent={ChipForm}
+        formSelectedProp="selectedChip"
+        dialogWidth="64rem"
+        dialogBreakpoints={{ '1200px': '92vw', '960px': '96vw' }}
+        dialogHeaderNew="Nuevo chip"
+        dialogHeaderEdit="Editar chip"
+        dialogSubtitleNew="Alta manual de chip SIM"
+        dialogSubtitleEdit="Actualice los datos del chip"
+        dialogHeaderIcon="pi-id-card"
+        activoToggle={activoToggle}
+        bulkAction={bulkAction}
+      />
+    </InventoryPageShell>
   );
 };
 

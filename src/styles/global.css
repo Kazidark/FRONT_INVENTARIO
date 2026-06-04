@@ -4,21 +4,7 @@
   box-sizing: border-box;
 }
 
-:root {
-  --sanna-surface-0: #ffffff;
-  --sanna-surface-1: #f8fafc;
-  --sanna-surface-2: #f1f5f9;
-
-  --sanna-ink: #0f172a;
-  --sanna-muted: #64748b;
-  --sanna-border: rgba(226, 232, 240, 0.9);
-
-  /* Acento principal UI: índigo (menos “todo verde”) */
-  --sanna-accent: #6366f1;
-  --sanna-accent-strong: #4f46e5;
-  --sanna-accent-ink: #4338ca;
-  --sanna-accent-ring: rgba(99, 102, 241, 0.22);
-}
+/* Tokens oficiales: ver sanna-brand-tokens.css (Manual SANNA 2023) */
 
 html {
   height: 100%;
@@ -33,18 +19,17 @@ body {
 body {
   margin: 0;
   background:
-    radial-gradient(880px 520px at 16% 12%, rgba(99, 102, 241, 0.07), rgba(99, 102, 241, 0) 58%),
-    radial-gradient(760px 480px at 88% 18%, rgba(56, 189, 248, 0.06), rgba(56, 189, 248, 0) 55%),
-    radial-gradient(640px 420px at 72% 88%, rgba(251, 191, 36, 0.05), rgba(251, 191, 36, 0) 50%),
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 48%, #eef2f7 100%);
+    radial-gradient(900px 520px at 12% 8%, rgba(0, 175, 80, 0.08), transparent 58%),
+    radial-gradient(700px 420px at 88% 12%, rgba(225, 255, 215, 0.45), transparent 55%),
+    radial-gradient(560px 380px at 70% 92%, rgba(255, 225, 80, 0.12), transparent 50%),
+    linear-gradient(180deg, var(--sanna-surface-1) 0%, var(--sanna-cream) 55%, #eef6f0 100%);
   color: var(--sanna-ink);
   font-feature-settings: "liga" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
   isolation: isolate;
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
-    "Liberation Sans", sans-serif;
+  font-family: var(--sanna-font-body);
   line-height: 1.45;
 }
 
@@ -59,12 +44,11 @@ body::before {
   content: "";
   position: fixed;
   inset: -140px;
-  opacity: 0.2;
+  opacity: 0.18;
   background:
-    radial-gradient(circle at 14% 26%, rgba(99, 102, 241, 0.45) 0 68px, transparent 70px),
-    radial-gradient(circle at 84% 20%, rgba(56, 189, 248, 0.38) 0 88px, transparent 90px),
-    radial-gradient(circle at 86% 82%, rgba(251, 191, 36, 0.28) 0 120px, transparent 122px),
-    radial-gradient(circle at 16% 86%, rgba(167, 139, 250, 0.22) 0 100px, transparent 102px);
+    radial-gradient(circle at 14% 26%, rgba(0, 175, 80, 0.2) 0 68px, transparent 70px),
+    radial-gradient(circle at 84% 20%, rgba(140, 245, 255, 0.15) 0 88px, transparent 90px),
+    radial-gradient(circle at 86% 82%, rgba(255, 225, 80, 0.2) 0 120px, transparent 122px);
   pointer-events: none;
   filter: blur(0.45px);
   z-index: 0;

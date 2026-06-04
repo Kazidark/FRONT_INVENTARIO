@@ -193,7 +193,7 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
       <FormShell className="modem-form-shell executive-form-shell">
         <DevicePreviewSidebar
           deviceType="Chip"
-          centerIcon="pi pi-sim-card"
+          centerIcon="pi pi-id-card"
           centerTitle={form.numero_chip || 'Chip'}
           centerSubtitle={operadorLabel || 'Sin operador'}
           cards={[
@@ -209,7 +209,7 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
 
         <form onSubmit={handleSubmit} className="ui-form-main modem-form-main">
           <div className="ui-form-grid">
-            <FormField label="Numero de chip" icon="📶">
+            <FormField label="Numero de chip" icon={<i className="pi pi-hashtag" />}>
               <FormInputWithIcon>
                 <input
                   id="numero_chip"
@@ -224,7 +224,7 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="ICCID" full icon="🔢">
+            <FormField label="ICCID" full icon={<i className="pi pi-barcode" />}>
               <FormInputWithIcon>
                 <input
                   id="iccid"
@@ -238,7 +238,7 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Operador" icon="📡">
+            <FormField label="Operador" icon={<i className="pi pi-send" />}>
               <FormInputWithIcon>
               <Dropdown
               value={form.operador}
@@ -252,7 +252,7 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Estado del chip" icon="⚙️">
+            <FormField label="Estado del chip" icon={<i className="pi pi-cog" />}>
               <FormInputWithIcon>
                 <Dropdown
                   id="estado_chip"
@@ -267,7 +267,7 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Area" icon="🏢">
+            <FormField label="Area" icon={<i className="pi pi-building" />}>
               <FormInputWithIcon>
                 <Dropdown
                   id="area"
@@ -282,7 +282,7 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Colaborador" icon="👤">
+            <FormField label="Colaborador" icon={<i className="pi pi-user" />}>
               <FormInputWithIcon>
               <Dropdown
               value={form.usuario}
@@ -296,7 +296,7 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
               </FormInputWithIcon>
             </FormField>
 
-            <FormField label="Tipo de chip" icon="📞">
+            <FormField label="Tipo de chip" icon={<i className="pi pi-mobile" />}>
               <FormInputWithIcon>
                 <Dropdown
                   id="tipo_chip"
@@ -310,7 +310,7 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
                 />
               </FormInputWithIcon>
             </FormField>
-            <FormField label="Ticket" icon="🎫">
+            <FormField label="Ticket" icon={<i className="pi pi-ticket" />}>
               <FormInputWithIcon>
               <InputText
               value={form.ticket}
@@ -320,7 +320,7 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
               ></InputText>
               </FormInputWithIcon>
             </FormField>
-            <FormField label="Correo Electronico" icon="📧">
+            <FormField label="Correo Electronico" icon={<i className="pi pi-envelope" />}>
               <FormInputWithIcon>
                 <InputText
                 value={form.correo_electronico}
@@ -330,7 +330,7 @@ const ChipForm = ({ selectedChip, onSaved, onCancel }) => {
                 ></InputText>
               </FormInputWithIcon>
             </FormField>
-            <FormField label="Observaciones" icon="📝">
+            <FormField label="Observaciones" icon={<i className="pi pi-comment" />}>
               <FormInputWithIcon>
               <InputTextarea 
               value={form.observacion}
